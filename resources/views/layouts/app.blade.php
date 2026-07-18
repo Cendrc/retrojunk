@@ -25,60 +25,52 @@
         <a href="{{ route('category', 'outerwear') }}" class="{{ request()->is('category/outerwear') ? 'active' : '' }}">Outerwear</a>
     </div>
 
-    <div class="navbar__actions">
-        <a href="{{ route('tracking.index') }}" class="icon-btn icon-btn--track" title="Lacak Pesanan">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-                <circle cx="12" cy="7" r="1.5" fill="currentColor"/>
-            </svg>
-        </a>
-        <button class="icon-btn" id="searchToggle" title="Search">
-
-        <button class="icon-btn cart-btn" id="cartToggle" title="Cart">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 01-8 0"/>
-            </svg>
-            <span class="cart-badge" id="cartCount">{{ count(session()->get('cart', [])) }}</span>
-        </button>
-
-        @auth
-        <a href="{{ route('account') }}" class="icon-btn" title="Account">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-        </a>
-        @else
-        <a href="{{ route('login') }}" class="icon-btn" title="Sign In">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-        </a>
-        @endauth
+<div class="navbar__actions">
+    <div class="navbar__search-wrapper" id="searchWrapper">
+        <form action="{{ route('search') }}" method="GET" class="navbar__search">
+            <button type="submit" class="navbar__search-btn" aria-label="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </button>
+            <input type="text" 
+                   name="q" 
+                   class="navbar__search-input" 
+                   placeholder="Cari produk..." 
+                   autocomplete="off"
+                   value="{{ request('q') }}">
+        </form>
     </div>
+
+    <button class="icon-btn cart-btn" id="cartToggle" title="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="cart-badge" id="cartCount">{{ count(session()->get('cart', [])) }}</span>
+    </button>
+
+    @auth
+    <a href="{{ route('account') }}" class="icon-btn" title="Account">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+    </a>
+    @else
+    <a href="{{ route('login') }}" class="icon-btn" title="Sign In">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+    </a>
+    @endauth
+</div>
 
     {{-- Mobile Menu --}}
     <button class="navbar__hamburger" id="mobileMenu">
         <span></span><span></span><span></span>
     </button>
 </nav>
-
-{{-- Search Bar --}}
-<div class="search-overlay" id="searchOverlay">
-    <div class="search-bar">
-        <form action="{{ route('search') }}" method="GET">
-            <input type="text" name="q" placeholder="Cari produk..." autofocus
-                   value="{{ request()->get('q') }}">
-            <button type="submit">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
-            </button>
-        </form>
-        <button class="search-close" id="searchClose">✕</button>
-    </div>
-</div>
 
 {{-- Cart Sidebar --}}
 <div class="cart-overlay" id="cartOverlay"></div>

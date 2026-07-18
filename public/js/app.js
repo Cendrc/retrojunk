@@ -2,28 +2,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ---- Search Toggle ----
-    const searchToggle = document.getElementById('searchToggle');
-    const searchOverlay = document.getElementById('searchOverlay');
-    const searchClose = document.getElementById('searchClose');
-
-    searchToggle?.addEventListener('click', () => {
-        searchOverlay.classList.toggle('open');
-        if (searchOverlay.classList.contains('open')) {
-            const searchInput = searchOverlay.querySelector('input');
-            if (searchInput) {
-                searchInput.value = '';  // Clear isi input
-            }
-            setTimeout(() => searchInput?.focus(), 100);
-        }
-    });
-
-    searchClose?.addEventListener('click', () => {
-        searchOverlay.classList.remove('open');
-        const searchInput = searchOverlay.querySelector('input');
-        if (searchInput) searchInput.value = '';
-    });
-
     // ---- Cart Sidebar ----
     const cartToggle = document.getElementById('cartToggle');
     const cartSidebar = document.getElementById('cartSidebar');
