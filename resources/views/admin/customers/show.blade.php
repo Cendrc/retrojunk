@@ -43,7 +43,16 @@
                         <tr>
                             <td><strong>{{ $order->tracking_code }}</strong></td>
                             <td>IDR {{ number_format($order->total, 0, ',', '.') }}</td>
-                            <td><span class="admin-badge admin-badge--{{ $order->status }}">{{ $order->status_label }}</span></td>
+                            <td>
+                                <div class="admin-badge-group">
+                                    <span class="admin-badge admin-badge--{{ $order->order_status }}">
+                                        {{ $order->order_status_label }}
+                                    </span>
+                                    <span class="admin-badge admin-badge-payment--{{ $order->payment_status }}">
+                                        {{ $order->payment_status_label }}
+                                    </span>
+                                </div>
+                            </td>
                             <td>{{ $order->created_at->format('d M Y') }}</td>
                             <td>
                                 <a href="{{ route('admin.orders.show', $order->id) }}" class="admin-btn admin-btn--small">Detail</a>
@@ -71,11 +80,11 @@
                 </div>
                 <div class="admin-stat-row">
                     <span>Selesai</span>
-                    <strong>{{ $orders->where('status', 'delivered')->count() }}</strong>
+                    <strong>{{ $orders->where('order_status', 'delivered')->count() }}</strong>
                 </div>
                 <div class="admin-stat-row">
                     <span>Total Belanja</span>
-                    <strong>IDR {{ number_format($orders->whereIn('status', ['confirmed', 'shipped', 'delivered'])->sum('total'), 0, ',', '.') }}</strong>
+                    <strong>IDR {{ number_format($orders->where('payment_status', 'paid')->sum('total'), 0, ',', '.') }}</strong>
                 </div>
             </div>
         </div>

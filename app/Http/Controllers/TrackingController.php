@@ -43,7 +43,9 @@ class TrackingController extends Controller
      */
     public function show($tracking_code)
     {
-        $order = Order::where('tracking_code', $tracking_code)->firstOrFail();
+        $order = Order::with('items.product')
+            ->where('tracking_code', $tracking_code)
+            ->firstOrFail();
         return view('pages.tracking.show', compact('order'));
     }
 }

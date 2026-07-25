@@ -255,6 +255,22 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 .admin-badge--delivered { background: #d1fae5; color: #065f46; }
 .admin-badge--cancelled { background: #fee2e2; color: #991b1b; }
 
+/* ============================================
+   Payment Status Badges
+   ============================================ */
+.admin-badge-payment--unpaid { background: #fef3c7; color: #92400e; }
+.admin-badge-payment--awaiting_verification { background: #dbeafe; color: #1e40af; }
+.admin-badge-payment--paid { background: #d1fae5; color: #065f46; }
+.admin-badge-payment--rejected { background: #fee2e2; color: #991b1b; }
+
+/* Badge Group (untuk 2 badge berdampingan) */
+.admin-badge-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 .admin-empty { text-align: center; color: #9ca3af; padding: 2rem; font-style: italic; }
 
 .best-selling-item {
@@ -451,52 +467,6 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 .admin-stat-row span { color: #6b7280; }
 .admin-stat-row strong { color: #1f2937; }
 
-@media (max-width: 1024px) {
-    .admin-grid, .admin-detail-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-    .admin-layout { grid-template-columns: 1fr; }
-    .admin-sidebar { position: relative; width: 100%; height: auto; }
-    .admin-main { margin-left: 0; }
-    .admin-content { padding: 1rem; }
-    .admin-form-row { grid-template-columns: 1fr; }
-}
-
-/* ===================== FORCE OVERRIDE ===================== */
-.admin-stats {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
-    gap: 1rem !important;
-}
-
-.admin-topbar {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 1rem 2rem !important;
-}
-
-.admin-topbar__title {
-    flex: 0 0 auto !important;
-}
-
-.admin-topbar__user {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.75rem !important;
-    margin-left: auto !important;
-}
-
-.admin-stat-card {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 1rem !important;
-}
-
 /* Stat Card Hover Effect */
 a.admin-stat-card {
     text-decoration: none;
@@ -520,33 +490,123 @@ a.admin-stat-card:active {
     transform: translateY(-1px);
 }
 
-/* ===================== FINAL FORCE OVERRIDE ===================== */
+/* ===================== ADMIN MOBILE ===================== */
+
+/* Tombol hamburger: default hidden, muncul cuma di mobile */
+.admin-mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #1f2937;
+    padding: 0.4rem;
+    cursor: pointer;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.admin-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.admin-sidebar-overlay.active { display: block; opacity: 1; }
+
+@media (max-width: 1024px) {
+    .admin-body .admin-grid,
+    .admin-detail-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 768px) {
+    .admin-body .admin-layout {
+        display: block !important;
+    }
+
+    .admin-mobile-toggle { display: flex; align-items: center; justify-content: center; }
+
+    .admin-body .admin-sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 240px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        z-index: 200;
+    }
+    .admin-body .admin-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .admin-body .admin-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    .admin-body .admin-topbar {
+        padding: 0.9rem 1.25rem !important;
+    }
+    .admin-body .admin-topbar__title {
+        font-size: 1.1rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .admin-body .admin-topbar__user span {
+        display: none;
+    }
+
+    .admin-body .admin-content { padding: 1.25rem !important; }
+
+    .admin-body .admin-stats {
+        grid-template-columns: 1fr !important;
+    }
+
+    .admin-toolbar { flex-direction: column; align-items: stretch; }
+    .admin-filters { flex-direction: column; }
+    .admin-filters .admin-input { width: 100%; min-width: 0; }
+
+    .admin-panel__body { padding: 0; }
+    .admin-panel__body:has(.admin-table) {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .admin-table { min-width: 560px; }
+
+    .admin-form-row { grid-template-columns: 1fr; }
+}
+
+/* ===================== FINAL FORCE OVERRIDE (DESKTOP ONLY) ===================== */
 .admin-body {
     margin: 0 !important;
     padding: 0 !important;
 }
 
-.admin-body .admin-layout {
-    display: grid !important;
-    grid-template-columns: 240px 1fr !important;
-    min-height: 100vh !important;
-}
+@media (min-width: 769px) {
+    .admin-body .admin-layout {
+        display: grid !important;
+        grid-template-columns: 240px 1fr !important;
+        min-height: 100vh !important;
+    }
 
-.admin-body .admin-main {
-    margin-left: 0 !important;
-    width: 100% !important;
-    min-height: 100vh !important;
-    display: block !important;
-    overflow: hidden !important;
-}
+    .admin-body .admin-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        display: block !important;
+        overflow: hidden !important;
+    }
 
-.admin-body .admin-sidebar {
-    position: sticky !important;
-    top: 0 !important;
+    .admin-body .admin-sidebar {
+        position: sticky !important;
+        top: 0 !important;
+    }
 }
 
 .admin-body .admin-content {
-    padding: 2rem !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
@@ -558,7 +618,6 @@ a.admin-stat-card:active {
     justify-content: space-between !important;
     align-items: center !important;
     width: 100% !important;
-    padding: 1rem 2rem !important;
     box-sizing: border-box !important;
 }
 
@@ -575,17 +634,19 @@ a.admin-stat-card:active {
     flex-shrink: 0 !important;
 }
 
-.admin-body .admin-stats {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 1rem !important;
-    width: 100% !important;
-    margin-bottom: 2rem !important;
-}
+@media (min-width: 769px) {
+    .admin-body .admin-stats {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 1rem !important;
+        width: 100% !important;
+        margin-bottom: 2rem !important;
+    }
 
-.admin-body .admin-grid {
-    display: grid !important;
-    grid-template-columns: 2fr 1fr !important;
-    gap: 1.5rem !important;
-    width: 100% !important;
+    .admin-body .admin-grid {
+        display: grid !important;
+        grid-template-columns: 2fr 1fr !important;
+        gap: 1.5rem !important;
+        width: 100% !important;
+    }
 }

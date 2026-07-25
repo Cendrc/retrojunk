@@ -10,12 +10,19 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::query();
+        $query = Order::with('items.product');
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        // Filter berdasarkan order_status (alur pesanan)
+        if ($request->filled('order_status')) {
+            $query->where('order_status', $request->order_status);
         }
 
+        // Filter berdasarkan payment_status (alur pembayaran)
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        // Search berdasarkan tracking code, email, atau nama
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('tracking_code', 'like', "%{$request->search}%")
@@ -31,41 +38,45 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::findOrFail($id);
+        $order = Order::with('items.product')->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,shipped,delivered,cancelled',
-            'courier' => 'nullable|string',
+            'order_status'    => 'required|in:pending,confirmed,shipped,delivered,cancelled',
+            'payment_status'  => 'required|in:unpaid,awaiting_verification,paid,rejected',
+            'courier'         => 'nullable|string',
             'tracking_number' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'notes'           => 'nullable|string',
         ]);
 
-        $order = Order::findOrFail($id);
-        $oldStatus = $order->status;
-        $newStatus = $request->status;
+        $order = Order::with('items.product')->findOrFail($id);
+        $oldOrderStatus = $order->order_status;
+        $newOrderStatus = $request->order_status;
 
-        // Update timestamps berdasarkan status
-        if ($newStatus === 'confirmed' && !$order->confirmed_at) {
+        // Update timestamps berdasarkan perubahan order_status
+        // Timestamps hanya di-set pertama kali status berubah (tidak overwrite)
+        if ($newOrderStatus === 'confirmed' && !$order->confirmed_at) {
             $order->confirmed_at = now();
         }
-        if ($newStatus === 'shipped' && !$order->shipped_at) {
+        if ($newOrderStatus === 'shipped' && !$order->shipped_at) {
             $order->shipped_at = now();
         }
-        if ($newStatus === 'delivered' && !$order->delivered_at) {
+        if ($newOrderStatus === 'delivered' && !$order->delivered_at) {
             $order->delivered_at = now();
         }
 
-        $order->status = $newStatus;
+        // Update kedua status
+        $order->order_status = $newOrderStatus;
+        $order->payment_status = $request->payment_status;
         $order->courier = $request->courier;
         $order->tracking_number = $request->tracking_number;
         $order->notes = $request->notes;
         $order->save();
 
         return redirect()->route('admin.orders.show', $order->id)
-            ->with('success', 'Status pesanan berhasil diupdate dari "' . $oldStatus . '" menjadi "' . $newStatus . '"');
+            ->with('success', 'Status pesanan berhasil diupdate. Order: "' . $oldOrderStatus . '" → "' . $newOrderStatus . '"');
     }
 }

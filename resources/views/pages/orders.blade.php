@@ -18,19 +18,24 @@
                         <p class="order-card__id">{{ $order->tracking_code ?? 'Order #' . $order->id }}</p>
                         <p class="order-card__date">{{ $order->created_at->format('d M Y, H:i') }}</p>
                     </div>
-                    <span class="order-card__status order-card__status--{{ $order->status }}">
-                        {{ $order->status_label }}
-                    </span>
+                    <div class="order-card__status-group">
+                        <span class="order-card__status order-card__status--{{ $order->order_status }}">
+                            {{ $order->order_status_label }}
+                        </span>
+                        <span class="order-card__status order-card__status-payment--{{ $order->payment_status }}">
+                            {{ $order->payment_status_label }}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="order-card__items">
                     @foreach($order->items as $item)
                     <div class="order-card__item">
-                        <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
-                             onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
+                        <img src="{{ asset($item->product_image) }}" alt="{{ $item->product_name }}"
+                            onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
                         <div>
-                            <p class="order-item__name">{{ $item['name'] }}</p>
-                            <p class="order-item__price">IDR {{ number_format($item['price'], 0, ',', '.') }}</p>
+                            <p class="order-item__name">{{ $item->product_name }}</p>
+                            <p class="order-item__price">IDR {{ number_format($item->product_price, 0, ',', '.') }}</p>
                         </div>
                     </div>
                     @endforeach

@@ -57,6 +57,19 @@
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
         </svg>
     </a>
+    
+    {{-- Tombol Dashboard Admin (hanya untuk user admin) --}}
+    @if(auth()->user()->is_admin)
+    <a href="{{ route('admin.dashboard') }}" class="navbar__admin-btn" title="Kembali ke Dashboard Admin">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Dashboard Admin</span>
+    </a>
+    @endif
     @else
     <a href="{{ route('login') }}" class="icon-btn" title="Sign In">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -106,6 +119,22 @@
 <main>
     @yield('content')
 </main>
+
+{{-- Floating Action Button - Dashboard Admin (hanya untuk admin) --}}
+@auth
+    @if(auth()->user()->is_admin)
+    <a href="{{ route('admin.dashboard') }}" class="admin-fab" title="Kembali ke Dashboard Admin" aria-label="Dashboard Admin">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span class="admin-fab__label">Dashboard Admin</span>
+    </a>
+    @endif
+@endauth
+
 
 {{-- Footer --}}
 <footer class="footer">

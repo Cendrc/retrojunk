@@ -12,8 +12,10 @@
 <body class="admin-body">
 
 <div class="admin-layout">
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
+
     {{-- Sidebar --}}
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar" id="adminSidebar">
         <div class="admin-sidebar__logo">
             <img src="{{ asset('images/logo.png') }}" alt="Retro Junk">
             <span>Admin Panel</span>
@@ -86,6 +88,13 @@
     <main class="admin-main">
         {{-- Top Bar --}}
         <header class="admin-topbar">
+            <button class="admin-mobile-toggle" id="adminSidebarToggle" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
             <h1 class="admin-topbar__title">{{ $title ?? 'Admin' }}</h1>
             <div class="admin-topbar__user">
                 <span>Hi, {{ auth()->user()->name }}</span>
@@ -112,5 +121,31 @@
 </div>
 
 <script src="{{ asset('js/app.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('adminSidebarToggle');
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.getElementById('adminSidebarOverlay');
+
+    function closeSidebar() {
+        sidebar?.classList.remove('mobile-open');
+        overlay?.classList.remove('active');
+    }
+
+    toggle?.addEventListener('click', () => {
+        sidebar?.classList.toggle('mobile-open');
+        overlay?.classList.toggle('active');
+    });
+
+    overlay?.addEventListener('click', closeSidebar);
+
+    // Tutup otomatis saat salah satu menu diklik (mobile)
+    sidebar?.querySelectorAll('.admin-nav__item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) closeSidebar();
+        });
+    });
+});
+</script>
 </body>
 </html>

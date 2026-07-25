@@ -25,7 +25,7 @@ class CustomerController extends Controller
         foreach ($customers as $customer) {
             $customer->order_count = Order::where('email', $customer->email)->count();
             $customer->total_spent = Order::where('email', $customer->email)
-                ->whereIn('status', ['confirmed', 'shipped', 'delivered'])
+                ->where('payment_status', 'paid')
                 ->sum('total');
         }
 
@@ -35,7 +35,10 @@ class CustomerController extends Controller
     public function show($id)
     {
         $customer = User::findOrFail($id);
-        $orders = Order::where('email', $customer->email)->latest()->get();
+        $orders = Order::with('items.product')
+            ->where('email', $customer->email)
+            ->latest()
+            ->get();
         
         return view('admin.customers.show', compact('customer', 'orders'));
     }

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cartToggle?.addEventListener('click', () => {
         cartSidebar.classList.add('open');
         cartOverlay.classList.add('open');
-        loadCartItems(); // Fetch items terbaru setiap buka sidebar
+        loadCartItems();
     });
 
     cartClose?.addEventListener('click', () => {
@@ -24,17 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cartOverlay.classList.remove('open');
     });
 
-    // ---- Esc to close ----
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            searchOverlay?.classList.remove('open');
-            cartSidebar?.classList.remove('open');
-            cartOverlay?.classList.remove('open');
-            const searchInput = searchOverlay?.querySelector('input');
-            if (searchInput) searchInput.value = '';
-        }
-    });
-
     // ---- Navbar scroll effect ----
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
@@ -45,12 +34,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ---- Mobile Menu ----
+    // ---- Mobile Menu (hamburger) ----
     const mobileMenuBtn = document.getElementById('mobileMenu');
     const navLinks = document.querySelector('.navbar__links');
 
     mobileMenuBtn?.addEventListener('click', () => {
         navLinks?.classList.toggle('mobile-open');
+        mobileMenuBtn.classList.toggle('active');
+    });
+
+    // Tutup menu mobile saat salah satu link diklik
+    navLinks?.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('mobile-open');
+            mobileMenuBtn?.classList.remove('active');
+        });
+    });
+
+    // Tutup menu mobile saat tap di luar navbar
+    document.addEventListener('click', (e) => {
+        if (navLinks?.classList.contains('mobile-open') &&
+            !navLinks.contains(e.target) &&
+            !mobileMenuBtn?.contains(e.target)) {
+            navLinks.classList.remove('mobile-open');
+            mobileMenuBtn?.classList.remove('active');
+        }
+    });
+
+    // ---- Navbar Search (tap-to-expand, cegah submit kosong) ----
+    const searchWrapper = document.getElementById('searchWrapper');
+    const searchInput = searchWrapper?.querySelector('.navbar__search-input');
+    const searchBtn = searchWrapper?.querySelector('.navbar__search-btn');
+
+    searchBtn?.addEventListener('click', (e) => {
+        const isExpanded = searchWrapper.classList.contains('active');
+        const hasValue = searchInput?.value.trim().length > 0;
+
+        if (!isExpanded) {
+            // Tap pertama: buka search bar dulu, jangan langsung submit
+            e.preventDefault();
+            searchWrapper.classList.add('active');
+            searchInput?.focus();
+        } else if (!hasValue) {
+            // Sudah terbuka tapi masih kosong: tetap jangan submit
+            e.preventDefault();
+            searchInput?.focus();
+        }
+        // Kalau sudah terbuka DAN ada isi -> biarkan form submit normal
+    });
+
+    document.addEventListener('click', (e) => {
+        if (searchWrapper?.classList.contains('active') &&
+            !searchWrapper.contains(e.target)) {
+            searchWrapper.classList.remove('active');
+        }
+    });
+
+    // ---- Esc to close semua panel ----
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            cartSidebar?.classList.remove('open');
+            cartOverlay?.classList.remove('open');
+            navLinks?.classList.remove('mobile-open');
+            mobileMenuBtn?.classList.remove('active');
+            searchWrapper?.classList.remove('active');
+        }
     });
 
     // ---- Product Gallery Dots ----
@@ -100,12 +148,11 @@ function loadCartItems() {
                     </div>
                 `).join('');
 
-                // Attach remove listeners
                 cartItems.querySelectorAll('.cart-item__remove').forEach(btn => {
                     btn.addEventListener('click', function () {
                         const id = this.dataset.id;
                         removeFromCart(id, () => {
-                            loadCartItems(); // Reload sidebar
+                            loadCartItems();
                         });
                     });
                 });

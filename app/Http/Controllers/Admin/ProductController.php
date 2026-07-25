@@ -40,14 +40,18 @@ class ProductController extends Controller
             'size' => 'nullable|string',
             'code' => 'nullable|string',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'description' => 'nullable|string',
             'is_new_arrival' => 'boolean',
         ]);
 
-        $data = $request->except(['_token']);
+        $data = $request->except(['_token', 'image']);
         $data['slug'] = Str::slug($request->name) . '-' . time();
         $data['is_new_arrival'] = $request->has('is_new_arrival');
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $this->storeProductImage($request->file('image'));
+        }
 
         Product::create($data);
 
@@ -68,11 +72,18 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'category' => 'required|in:shirts,tshirts,pants,outerwear',
             'stock' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $product = Product::findOrFail($id);
-        $data = $request->except(['_token', '_method']);
+        $data = $request->except(['_token', '_method', 'image']);
         $data['is_new_arrival'] = $request->has('is_new_arrival');
+
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama supaya tidak menumpuk file tak terpakai
+            $this->deleteProductImage($product->image);
+            $data['image'] = $this->storeProductImage($request->file('image'));
+        }
 
         $product->update($data);
 
@@ -83,9 +94,42 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
+        $this->deleteProductImage($product->image);
         $product->delete();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus.');
+    }
+
+    /**
+     * Simpan file gambar produk ke public/images/products dan
+     * kembalikan path relatif untuk disimpan di kolom `image`.
+     */
+    private function storeProductImage($file): string
+    {
+        $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
+            . '-' . time() . '.' . $file->getClientOriginalExtension();
+
+        $destination = public_path('images/products');
+        if (!file_exists($destination)) {
+            mkdir($destination, 0755, true);
+        }
+
+        $file->move($destination, $filename);
+
+        return 'images/products/' . $filename;
+    }
+
+    /**
+     * Hapus file gambar lama dari public/images/products, jika ada.
+     */
+    private function deleteProductImage(?string $path): void
+    {
+        if (!$path) return;
+
+        $fullPath = public_path($path);
+        if (file_exists($fullPath) && is_file($fullPath)) {
+            @unlink($fullPath);
+        }
     }
 }

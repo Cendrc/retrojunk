@@ -10,7 +10,14 @@
         <div class="admin-panel">
             <div class="admin-panel__header">
                 <h2>{{ $order->tracking_code }}</h2>
-                <span class="admin-badge admin-badge--{{ $order->status }}">{{ $order->status_label }}</span>
+                <div class="admin-badge-group">
+                    <span class="admin-badge admin-badge--{{ $order->order_status }}">
+                        {{ $order->order_status_label }}
+                    </span>
+                    <span class="admin-badge admin-badge-payment--{{ $order->payment_status }}">
+                        {{ $order->payment_status_label }}
+                    </span>
+                </div>
             </div>
             <div class="admin-panel__body">
                 <div class="admin-info-grid">
@@ -81,14 +88,16 @@
             <div class="admin-panel__body">
                 @foreach($order->items as $item)
                 <div class="admin-order-item">
-                    <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
-                         onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
+                    <img src="{{ asset($item->product_image) }}" alt="{{ $item->product_name }}"
+                        onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
                     <div class="admin-order-item__info">
-                        <p class="admin-order-item__name">{{ $item['name'] }}</p>
-                        @if(isset($item['size']))<p class="admin-order-item__size">Size: {{ $item['size'] }}</p>@endif
+                        <p class="admin-order-item__name">{{ $item->product_name }}</p>
+                        @if($item->product && $item->product->size)
+                            <p class="admin-order-item__size">Size: {{ $item->product->size }}</p>
+                        @endif
                     </div>
                     <div class="admin-order-item__price">
-                        IDR {{ number_format($item['price'], 0, ',', '.') }}
+                        IDR {{ number_format($item->product_price, 0, ',', '.') }}
                     </div>
                 </div>
                 @endforeach
@@ -133,14 +142,26 @@
                     @csrf
                     @method('PUT')
 
+                    {{-- Order Status --}}
                     <div class="admin-form-group">
                         <label>Status Pesanan</label>
-                        <select name="status" class="admin-input" required>
-                            <option value="pending" @selected($order->status === 'pending')>Pending</option>
-                            <option value="confirmed" @selected($order->status === 'confirmed')>Confirmed</option>
-                            <option value="shipped" @selected($order->status === 'shipped')>Shipped</option>
-                            <option value="delivered" @selected($order->status === 'delivered')>Delivered</option>
-                            <option value="cancelled" @selected($order->status === 'cancelled')>Cancelled</option>
+                        <select name="order_status" class="admin-input" required>
+                            <option value="pending" @selected($order->order_status === 'pending')>Pending</option>
+                            <option value="confirmed" @selected($order->order_status === 'confirmed')>Confirmed</option>
+                            <option value="shipped" @selected($order->order_status === 'shipped')>Shipped</option>
+                            <option value="delivered" @selected($order->order_status === 'delivered')>Delivered</option>
+                            <option value="cancelled" @selected($order->order_status === 'cancelled')>Cancelled</option>
+                        </select>
+                    </div>
+
+                    {{-- Payment Status --}}
+                    <div class="admin-form-group">
+                        <label>Status Pembayaran</label>
+                        <select name="payment_status" class="admin-input" required>
+                            <option value="unpaid" @selected($order->payment_status === 'unpaid')>Belum Dibayar</option>
+                            <option value="awaiting_verification" @selected($order->payment_status === 'awaiting_verification')>Menunggu Verifikasi</option>
+                            <option value="paid" @selected($order->payment_status === 'paid')>Sudah Dibayar</option>
+                            <option value="rejected" @selected($order->payment_status === 'rejected')>Ditolak</option>
                         </select>
                     </div>
 

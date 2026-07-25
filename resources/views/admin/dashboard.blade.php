@@ -107,7 +107,7 @@
                         <td><a href="{{ route('admin.orders.show', $order->id) }}" class="admin-table__link">{{ $order->tracking_code }}</a></td>
                         <td>{{ $order->name }}</td>
                         <td>IDR {{ number_format($order->total, 0, ',', '.') }}</td>
-                        <td><span class="admin-badge admin-badge--{{ $order->status }}">{{ $order->status_label }}</span></td>
+                        <td><span class="admin-badge admin-badge--{{ $order->order_status }}">{{ $order->order_status_label }}</span></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -126,11 +126,11 @@
             @if($bestSelling->count() > 0)
             @foreach($bestSelling as $item)
             <div class="best-selling-item">
-                <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
-                     onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
+                <img src="{{ asset($item->image) }}" alt="{{ $item->name }}"
+                    onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
                 <div class="best-selling-item__info">
-                    <p class="best-selling-item__name">{{ $item['name'] }}</p>
-                    <p class="best-selling-item__count">{{ $item['count'] }} terjual</p>
+                    <p class="best-selling-item__name">{{ $item->name }}</p>
+                    <p class="best-selling-item__count">{{ $item->count }} terjual</p>
                 </div>
             </div>
             @endforeach

@@ -12,9 +12,14 @@
             </div>
         </div>
 
-        {{-- Status Badge --}}
-        <div class="tracking-status-badge tracking-status-badge--{{ $order->status }}">
-            {{ $order->status_label }}
+        {{-- Status Badges (Order + Payment) --}}
+        <div class="tracking-status-group">
+            <div class="tracking-status-badge tracking-status-badge--{{ $order->order_status }}">
+                {{ $order->order_status_label }}
+            </div>
+            <div class="tracking-status-badge tracking-status-badge-payment--{{ $order->payment_status }}">
+                {{ $order->payment_status_label }}
+            </div>
         </div>
 
         {{-- Timeline --}}
@@ -61,7 +66,7 @@
         </div>
 
         {{-- Tracking Number (if shipped) --}}
-        @if($order->tracking_number && in_array($order->status, ['shipped', 'delivered']))
+        @if($order->tracking_number && in_array($order->order_status, ['shipped', 'delivered']))
         <div class="tracking-card tracking-card--resi">
             <h2>Informasi Kurir</h2>
             <div class="resi-info">
@@ -90,15 +95,17 @@
                 @foreach($order->items as $item)
                 <div class="order-item">
                     <div class="order-item__img">
-                        <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
-                             onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
+                        <img src="{{ asset($item->product_image) }}" alt="{{ $item->product_name }}"
+                            onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
                     </div>
                     <div class="order-item__info">
-                        <p class="order-item__name">{{ $item['name'] }}</p>
-                        @if(isset($item['size']))<p class="order-item__size">Size: {{ $item['size'] }}</p>@endif
+                        <p class="order-item__name">{{ $item->product_name }}</p>
+                        @if($item->product && $item->product->size)
+                            <p class="order-item__size">Size: {{ $item->product->size }}</p>
+                        @endif
                     </div>
                     <div class="order-item__price">
-                        IDR {{ number_format($item['price'], 0, ',', '.') }}
+                        IDR {{ number_format($item->product_price, 0, ',', '.') }}
                     </div>
                 </div>
                 @endforeach

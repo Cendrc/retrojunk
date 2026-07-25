@@ -1,6 +1,43 @@
 @extends('layouts.app')
 @section('content')
 
+{{-- ============================================
+     STOCK ERROR MODAL (Fitur Stock Lock)
+     Muncul otomatis kalau ada session stock_error
+     ============================================ --}}
+@if(session('stock_error'))
+<div class="stock-modal" id="stockModal">
+    <div class="stock-modal__overlay" onclick="closeStockModal()"></div>
+    <div class="stock-modal__content">
+        <button class="stock-modal__close" onclick="closeStockModal()" aria-label="Tutup">✕</button>
+        
+        <div class="stock-modal__icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        </div>
+        
+        <h2 class="stock-modal__title">Yah, Kehabisan Stok</h2>
+        
+        <p class="stock-modal__message">
+            Produk <strong>"{{ session('stock_error')['product_name'] }}"</strong> baru saja dipesan customer lain.
+        </p>
+        
+        <p class="stock-modal__sub">
+            Karena ini produk preloved dengan stok satuan, hanya satu customer yang beruntung. Yuk cek produk serupa di bawah yang masih tersedia!
+        </p>
+        
+        <div class="stock-modal__actions">
+            <button class="stock-modal__btn stock-modal__btn--primary" onclick="closeStockModal()">
+                Lihat Produk Lain
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
 <section class="product-detail">
     {{-- Product Image Gallery --}}
     <div class="product-detail__gallery">
@@ -122,6 +159,24 @@ document.getElementById('addToCart')?.addEventListener('click', function () {
             showToast(data.message);
         }
     });
+});
+
+// ============================================
+// STOCK MODAL - Close Function
+// ============================================
+function closeStockModal() {
+    const modal = document.getElementById('stockModal');
+    if (modal) {
+        modal.classList.add('stock-modal--closing');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeStockModal();
+    }
 });
 </script>
 @endsection

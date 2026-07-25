@@ -7,18 +7,28 @@
                placeholder="Cari kode pesanan, email, atau nama..." 
                value="{{ request('search') }}">
         
-        <select name="status" class="admin-input">
-            <option value="">Semua Status</option>
-            <option value="pending" @selected(request('status') === 'pending')>Pending</option>
-            <option value="confirmed" @selected(request('status') === 'confirmed')>Confirmed</option>
-            <option value="shipped" @selected(request('status') === 'shipped')>Shipped</option>
-            <option value="delivered" @selected(request('status') === 'delivered')>Delivered</option>
-            <option value="cancelled" @selected(request('status') === 'cancelled')>Cancelled</option>
+        {{-- Filter Order Status --}}
+        <select name="order_status" class="admin-input">
+            <option value="">Semua Status Pesanan</option>
+            <option value="pending" @selected(request('order_status') === 'pending')>Pending</option>
+            <option value="confirmed" @selected(request('order_status') === 'confirmed')>Confirmed</option>
+            <option value="shipped" @selected(request('order_status') === 'shipped')>Shipped</option>
+            <option value="delivered" @selected(request('order_status') === 'delivered')>Delivered</option>
+            <option value="cancelled" @selected(request('order_status') === 'cancelled')>Cancelled</option>
+        </select>
+
+        {{-- Filter Payment Status --}}
+        <select name="payment_status" class="admin-input">
+            <option value="">Semua Status Pembayaran</option>
+            <option value="unpaid" @selected(request('payment_status') === 'unpaid')>Belum Dibayar</option>
+            <option value="awaiting_verification" @selected(request('payment_status') === 'awaiting_verification')>Menunggu Verifikasi</option>
+            <option value="paid" @selected(request('payment_status') === 'paid')>Sudah Dibayar</option>
+            <option value="rejected" @selected(request('payment_status') === 'rejected')>Ditolak</option>
         </select>
 
         <button type="submit" class="admin-btn admin-btn--primary">Filter</button>
         
-        @if(request('search') || request('status'))
+        @if(request('search') || request('order_status') || request('payment_status'))
         <a href="{{ route('admin.orders.index') }}" class="admin-btn admin-btn--secondary">Reset</a>
         @endif
     </form>
@@ -34,7 +44,8 @@
                     <th>Customer</th>
                     <th>Total</th>
                     <th>Pembayaran</th>
-                    <th>Status</th>
+                    <th>Status Pesanan</th>
+                    <th>Status Bayar</th>
                     <th>Tanggal</th>
                     <th>Aksi</th>
                 </tr>
@@ -49,7 +60,16 @@
                     </td>
                     <td>IDR {{ number_format($order->total, 0, ',', '.') }}</td>
                     <td>{{ $order->payment_method_label }}</td>
-                    <td><span class="admin-badge admin-badge--{{ $order->status }}">{{ $order->status_label }}</span></td>
+                    <td>
+                        <span class="admin-badge admin-badge--{{ $order->order_status }}">
+                            {{ $order->order_status_label }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="admin-badge admin-badge-payment--{{ $order->payment_status }}">
+                            {{ $order->payment_status_label }}
+                        </span>
+                    </td>
                     <td>{{ $order->created_at->format('d M Y') }}</td>
                     <td>
                         <a href="{{ route('admin.orders.show', $order->id) }}" class="admin-btn admin-btn--small">Detail</a>

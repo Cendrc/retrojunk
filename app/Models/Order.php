@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -10,17 +11,38 @@ class Order extends Model
     protected $fillable = [
         'user_id', 'session_id', 'tracking_code', 'email', 'name', 'phone',
         'address', 'province', 'city', 'district', 'postal_code',
-        'items', 'subtotal', 'shipping_cost', 'shipping_zone', 'total',
+        'subtotal', 'shipping_cost', 'shipping_zone', 'total',
         'payment_method', 'payment_proof', 'courier', 'tracking_number',
-        'status', 'notes', 'confirmed_at', 'shipped_at', 'delivered_at',
+        'order_status', 'payment_status',
+        'notes', 'confirmed_at', 'shipped_at', 'delivered_at',
     ];
 
     protected $casts = [
-        'items'         => 'array',
         'confirmed_at'  => 'datetime',
         'shipped_at'    => 'datetime',
         'delivered_at'  => 'datetime',
     ];
+
+    /**
+     * ============================================================
+     * RELASI
+     * ============================================================
+     */
+
+    /**
+     * Relasi: Order HAS MANY OrderItem
+     * Satu order dapat berisi satu atau lebih order_item.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * ============================================================
+     * BOOTED / EVENT HOOKS
+     * ============================================================
+     */
 
     /**
      * Auto-generate tracking code saat order dibuat
@@ -34,6 +56,12 @@ class Order extends Model
         });
     }
 
+    /**
+     * ============================================================
+     * HELPERS
+     * ============================================================
+     */
+
     public static function generateTrackingCode()
     {
         do {
@@ -42,6 +70,12 @@ class Order extends Model
 
         return $code;
     }
+
+    /**
+     * ============================================================
+     * ACCESSORS (Label & UI Helpers)
+     * ============================================================
+     */
 
     public function getPaymentMethodLabelAttribute()
     {
@@ -53,14 +87,31 @@ class Order extends Model
         };
     }
 
-    public function getStatusLabelAttribute()
+    /**
+     * Label untuk order_status (alur pesanan)
+     */
+    public function getOrderStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match($this->order_status) {
             'pending'   => 'Menunggu Konfirmasi',
             'confirmed' => 'Dikonfirmasi',
             'shipped'   => 'Dalam Pengiriman',
             'delivered' => 'Terkirim',
             'cancelled' => 'Dibatalkan',
+            default => 'Unknown',
+        };
+    }
+
+    /**
+     * Label untuk payment_status (alur pembayaran)
+     */
+    public function getPaymentStatusLabelAttribute()
+    {
+        return match($this->payment_status) {
+            'unpaid'                => 'Belum Dibayar',
+            'awaiting_verification' => 'Menunggu Verifikasi',
+            'paid'                  => 'Sudah Dibayar',
+            'rejected'              => 'Pembayaran Ditolak',
             default => 'Unknown',
         };
     }
@@ -96,6 +147,7 @@ class Order extends Model
 
     /**
      * Generate tracking steps untuk timeline visual
+     * Menggunakan order_status untuk alur pengiriman.
      */
     public function getTrackingStepsAttribute()
     {
@@ -114,7 +166,7 @@ class Order extends Model
                 'description' => 'Pembayaran diverifikasi & pesanan sedang diproses',
                 'icon' => 'check',
                 'date' => $this->confirmed_at,
-                'completed' => in_array($this->status, ['confirmed', 'shipped', 'delivered']),
+                'completed' => in_array($this->order_status, ['confirmed', 'shipped', 'delivered']),
             ],
             [
                 'key' => 'shipped',
@@ -122,7 +174,7 @@ class Order extends Model
                 'description' => 'Pesanan sudah dikirim via kurir',
                 'icon' => 'truck',
                 'date' => $this->shipped_at,
-                'completed' => in_array($this->status, ['shipped', 'delivered']),
+                'completed' => in_array($this->order_status, ['shipped', 'delivered']),
             ],
             [
                 'key' => 'delivered',
@@ -130,7 +182,7 @@ class Order extends Model
                 'description' => 'Pesanan telah diterima customer',
                 'icon' => 'home',
                 'date' => $this->delivered_at,
-                'completed' => $this->status === 'delivered',
+                'completed' => $this->order_status === 'delivered',
             ],
         ];
 

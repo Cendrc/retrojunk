@@ -9,6 +9,21 @@
 
         <h1>Masuk</h1>
 
+        {{-- Info Alert: Kalau user dialihkan dari checkout --}}
+        @if(session()->has('url.intended') && str_contains(session('url.intended'), 'checkout'))
+        <div class="alert-info-login">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <div>
+                <strong>Silakan login terlebih dahulu</strong>
+                <p>Kamu perlu masuk ke akun untuk melanjutkan pemesanan</p>
+            </div>
+        </div>
+        @endif
+
         @if($errors->any())
         <div class="alert-error">{{ $errors->first() }}</div>
         @endif

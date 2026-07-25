@@ -56,7 +56,7 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
-        return redirect()->route('home');
+        return redirect()->intended(route('home'));
     }
 
     public function logout(Request $request)
@@ -74,7 +74,8 @@ class AuthController extends Controller
 
     public function orders()
     {
-        $orders = Order::where('email', auth()->user()->email)
+        $orders = Order::with('items.product')
+            ->where('email', auth()->user()->email)
             ->orWhere('user_id', auth()->id())
             ->latest()
             ->get();

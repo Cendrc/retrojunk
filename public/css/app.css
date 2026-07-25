@@ -2831,3 +2831,569 @@ input[type="number"]::-webkit-inner-spin-button {
         width: 180px;
     }
 }
+
+/* ============================================
+   PAYMENT STATUS BADGES (Fitur Split Status)
+   ============================================ */
+
+/* Group wrapper untuk 2 badge berdampingan */
+.order-card__status-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.tracking-status-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+/* Payment badges di orders.blade.php (customer riwayat) */
+.order-card__status-payment--unpaid {
+    background: #fef3c7;
+    color: #92400e;
+}
+.order-card__status-payment--awaiting_verification {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.order-card__status-payment--paid {
+    background: #d1fae5;
+    color: #065f46;
+}
+.order-card__status-payment--rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Payment badges di tracking/show.blade.php */
+.tracking-status-badge-payment--unpaid {
+    background: #fef3c7;
+    color: #92400e;
+}
+.tracking-status-badge-payment--awaiting_verification {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.tracking-status-badge-payment--paid {
+    background: #d1fae5;
+    color: #065f46;
+}
+.tracking-status-badge-payment--rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ============================================
+   STOCK ERROR MODAL (Fitur Stock Lock)
+   ============================================ */
+
+.stock-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: stockModalFadeIn 0.3s ease-out;
+}
+
+.stock-modal__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+}
+
+.stock-modal__content {
+    position: relative;
+    background: var(--cream);
+    border-radius: var(--radius);
+    max-width: 480px;
+    width: calc(100% - 32px);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    animation: stockModalScaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin: 16px;
+}
+
+.stock-modal__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-mid);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.stock-modal__close:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--text-dark);
+}
+
+.stock-modal__icon {
+    width: 80px;
+    height: 80px;
+    background: #fef3c7;
+    border-radius: 50%;
+    margin: 0 auto 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d97706;
+    animation: stockModalIconPulse 1.2s ease-in-out infinite alternate;
+}
+
+.stock-modal__icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.stock-modal__title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+.stock-modal__message {
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.stock-modal__message strong {
+    color: var(--olive);
+    font-weight: 600;
+}
+
+.stock-modal__sub {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+}
+
+.stock-modal__actions {
+    display: flex;
+    justify-content: center;
+}
+
+.stock-modal__btn {
+    padding: 0.85rem 2rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+}
+
+.stock-modal__btn--primary {
+    background: var(--olive);
+    color: white;
+}
+
+.stock-modal__btn--primary:hover {
+    background: var(--olive-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(92, 107, 58, 0.3);
+}
+
+/* Closing Animation */
+.stock-modal--closing {
+    animation: stockModalFadeOut 0.3s ease-out forwards;
+}
+
+.stock-modal--closing .stock-modal__content {
+    animation: stockModalScaleOut 0.3s ease-out forwards;
+}
+
+/* Animations */
+@keyframes stockModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes stockModalFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes stockModalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes stockModalScaleOut {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+}
+
+@keyframes stockModalIconPulse {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4);
+    }
+    to {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 12px rgba(217, 119, 6, 0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .stock-modal__content {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    .stock-modal__title {
+        font-size: 1.35rem;
+    }
+    .stock-modal__icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1rem;
+    }
+    .stock-modal__icon svg {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* ============================================
+   ADMIN NAVBAR BUTTON & FLOATING ACTION BUTTON
+   Muncul hanya untuk user admin
+   ============================================ */
+
+/* ===== 1. Tombol Dashboard Admin di Navbar ===== */
+.navbar__admin-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all var(--transition);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navbar__admin-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar__admin-btn svg {
+    stroke: white;
+    flex-shrink: 0;
+}
+
+.navbar__admin-btn span {
+    color: white;
+}
+
+/* ===== 2. Floating Action Button (FAB) ===== */
+.admin-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.4rem;
+    background: var(--olive);
+    color: white;
+    border-radius: 50px;
+    box-shadow: 0 6px 20px rgba(92, 107, 58, 0.35);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all var(--transition);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    animation: adminFabSlideIn 0.4s ease-out 0.5s both;
+}
+
+.admin-fab:hover {
+    background: var(--olive-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(92, 107, 58, 0.45);
+}
+
+.admin-fab:active {
+    transform: translateY(0);
+}
+
+.admin-fab svg {
+    stroke: white;
+    flex-shrink: 0;
+}
+
+.admin-fab__label {
+    color: white;
+}
+
+/* Animation: Slide in from bottom */
+@keyframes adminFabSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(80px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Responsive: Mobile ===== */
+@media (max-width: 768px) {
+    /* Navbar button: hide label, show icon only */
+    .navbar__admin-btn span {
+        display: none;
+    }
+    
+    .navbar__admin-btn {
+        padding: 0.5rem;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        justify-content: center;
+    }
+    
+    /* FAB: circular only (no label) */
+    .admin-fab__label {
+        display: none;
+    }
+    
+    .admin-fab {
+        width: 56px;
+        height: 56px;
+        padding: 0;
+        border-radius: 50%;
+        justify-content: center;
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .admin-fab svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* ===================== MOBILE FIXES ADDENDUM ===================== */
+@media (max-width: 768px) {
+    :root { --nav-h: 78px; }
+
+    .navbar {
+        padding: 0 1.25rem;
+        justify-content: flex-end;
+    }
+
+    .navbar__logo {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+    }
+    .navbar__logo-img { height: 72px; width: auto; }
+
+    /* Hamburger dikunci dekat tepi kanan, terpisah dari alur actions */
+    .navbar__hamburger {
+        position: absolute;
+        right: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+    }
+
+    /* Grup search/cart/account digeser sedikit ke kiri, menjauh dari hamburger */
+    .navbar__actions {
+        margin-right: 2.5rem;
+    }
+
+    /* Animasi hamburger jadi X saat aktif */
+    .navbar__hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .navbar__hamburger.active span:nth-child(2) { opacity: 0; }
+    .navbar__hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Dropdown menu mobile */
+    .navbar__links.mobile-open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: var(--nav-h);
+        left: 0;
+        right: 0;
+        background: var(--olive-dark);
+        padding: 0.5rem 1.5rem 1.5rem;
+        gap: 0;
+        box-shadow: var(--shadow-lg);
+        z-index: 999;
+        border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .navbar__admin-btn { display: none !important; }
+
+    .navbar__links.mobile-open a {
+        padding: 0.9rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        font-size: 1rem;
+    }
+    .navbar__links.mobile-open a:last-child { border-bottom: none; }
+
+    /* Search: tap-to-expand menggantikan hover (yang tidak ada di HP) */
+    .navbar__search-wrapper.active .navbar__search {
+        width: 200px;
+        background: white;
+        border-color: rgba(92,107,58,0.2);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .navbar__search-wrapper.active .navbar__search-input { opacity: 1; }
+    .navbar__search-wrapper.active .navbar__search-btn { color: var(--olive); }
+    .navbar__search-wrapper.active ~ .navbar__logo,
+    .navbar:has(.navbar__search-wrapper.active) .navbar__logo {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .hero__img img { 
+        position: absolute; 
+        inset: 0; 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        object-position: right center;
+    }
+}
+
+@media (max-width: 480px) {
+    :root { --nav-h: 78px; }
+    .navbar__logo-img { height: 60px; }
+    .hero__img { height: 220px; }
+}
+
+@media (max-width: 768px) {
+    .hero__text {
+        background: rgba(240, 235, 225, 0.92);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: max-content;
+        max-width: 90%;
+        opacity: 75%;
+    }
+}
+
+@media (max-width: 768px) {
+.checkout-item__img {
+        overflow: visible;
+    }
+    .checkout-item__img img {
+        border-radius: 10px;
+    }
+
+    .footer__logo {
+        margin-left: -2.5rem;
+    }
+}
+
+/* ============================================
+   LOGIN INFO ALERT (Redirect from Checkout)
+   ============================================ */
+
+.alert-info-login {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: rgba(92, 107, 58, 0.08);
+    border: 1px solid rgba(92, 107, 58, 0.2);
+    border-left: 4px solid var(--olive);
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+    animation: alertSlideIn 0.4s ease-out;
+}
+
+.alert-info-login svg {
+    stroke: var(--olive);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.alert-info-login strong {
+    display: block;
+    color: var(--olive-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.alert-info-login p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    line-height: 1.4;
+}
+
+@keyframes alertSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -33,11 +33,14 @@ Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 Route::get('/cart/items', [CartController::class, 'items'])->name('cart.items');
 
 // Checkout
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::get('/checkout/payment/{id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
-Route::post('/checkout/payment/{id}/upload', [CheckoutController::class, 'uploadProof'])->name('checkout.upload');
-Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+// Checkout - hanya untuk user yang sudah login
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/payment/{id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+    Route::post('/checkout/payment/{id}/upload', [CheckoutController::class, 'uploadProof'])->name('checkout.upload');
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+});
 
 // Tracking
 Route::get('/track', [TrackingController::class, 'index'])->name('tracking.index');
