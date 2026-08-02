@@ -59,6 +59,15 @@
                 Customer
             </a>
 
+            <a href="{{ route('admin.admins.index') }}" class="admin-nav__item {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21v-1a6 6 0 016-6h4a6 6 0 016 6v1"/>
+                    <path d="M20 8l1.5 1.5L18 13"/>
+                </svg>
+                Kelola Admin
+            </a>
+
             <div class="admin-nav__divider"></div>
 
             <a href="{{ route('home') }}" class="admin-nav__item" target="_blank">

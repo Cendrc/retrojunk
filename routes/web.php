@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\AdminManagementController;
 
 // Landing / Home
 Route::get('/', [ProductController::class, 'index'])->name('home');
@@ -96,4 +97,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Customers
     Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers/{id}', [AdminCustomerController::class, 'show'])->name('customers.show');
+
+    // Admin accounts
+    Route::get('/admins', [AdminManagementController::class, 'index'])->name('admins.index');
+    Route::get('/admins/create', [AdminManagementController::class, 'create'])->name('admins.create');
+    Route::post('/admins', [AdminManagementController::class, 'store'])->name('admins.store');
+    Route::delete('/admins/{id}', [AdminManagementController::class, 'destroy'])->name('admins.destroy');
 });

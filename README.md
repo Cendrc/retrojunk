@@ -10,10 +10,12 @@ Website toko fashion preloved dengan tampilan retro vintage, dibangun menggunaka
 - **Product Page** — Galeri gambar, detail produk, spesifikasi, Add to Cart
 - **Cart Sidebar** — Sidebar animasi dengan daftar item dan remove
 - **Cart Page** — Halaman keranjang penuh dengan ringkasan pesanan
-- **Checkout Page** — Form kontak & pengiriman + ringkasan order
+- **Checkout Page** — Form kontak & pengiriman, alamat tersimpan, ringkasan order
+- **Pembayaran** — Integrasi Midtrans (bank transfer) + opsi QRIS manual
 - **Kategori** — New Arrivals, Shirts, T-Shirts, Pants, Outerwear
 - **Pencarian** — Search produk real-time
 - **Autentikasi** — Register, Login, Logout
+- **Admin Panel** — Kelola produk (CRUD + upload gambar), pesanan, dan pelanggan
 - **Session Cart** — Keranjang berbasis session (tanpa login)
 - **Responsive** — Mobile-friendly
 
@@ -47,23 +49,28 @@ DB_DATABASE=retrojunk
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
-# 6. Buat database di MySQL
+# 6. Isi kredensial akun admin di .env (dipakai oleh AdminUserSeeder)
+ADMIN_NAME="Admin Retro Junk"
+ADMIN_EMAIL=admin@retrojunk.id
+ADMIN_PASSWORD=isi_password_admin_disini
+
+# 7. Buat database di MySQL
 mysql -u root -p -e "CREATE DATABASE retrojunk CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 7. Jalankan migrasi
-php artisan migrate
+# 8. Jalankan migrasi + seed (otomatis mengisi katalog produk lengkap
+#    dan membuat/update akun admin sesuai .env di atas)
+php artisan migrate --seed
 
-# 8. Seed data produk awal
-php artisan db:seed
-
-# 9. Link storage (untuk upload gambar)
+# 9. Link storage (untuk upload bukti pembayaran)
 php artisan storage:link
 
 # 10. Jalankan server
 php artisan serve
 ```
 
-Buka `http://localhost:8000` di browser.
+Buka `http://localhost:8000` di browser. Login admin panel di `/admin` memakai `ADMIN_EMAIL` / `ADMIN_PASSWORD` yang sudah diisi.
+
+> Setiap kali ada produk baru yang ditambahkan lewat admin panel dan ingin ikut terbawa ke deployment berikutnya, tambahkan juga datanya ke `database/seeders/ProductSeeder.php` (seeder ini idempotent — aman dijalankan ulang, tidak akan menduplikasi produk yang sudah ada).
 
 ---
 
@@ -82,8 +89,10 @@ retrojunk/
 │       ├── Product.php
 │       └── Order.php
 ├── database/
-│   ├── migrations/                 # Tabel products & orders
-│   └── seeders/ProductSeeder.php   # 19 produk sample
+│   ├── migrations/                 # Tabel products, orders, order_items, addresses, dll
+│   └── seeders/
+│       ├── ProductSeeder.php       # Katalog produk (idempotent, sinkron dgn data admin panel)
+│       └── AdminUserSeeder.php     # Akun admin, dibuat dari ADMIN_* di .env
 ├── resources/views/
 │   ├── layouts/app.blade.php       # Layout utama (navbar, cart sidebar, footer)
 │   └── pages/
@@ -128,24 +137,9 @@ Update kolom `image` di database atau di `ProductSeeder.php`.
 
 ## 📦 Menambah Produk
 
-Via Tinker:
-```bash
-php artisan tinker
+Cara utama: lewat **Admin Panel** (`/admin/products`) — login dengan akun admin, lalu tambah/edit/hapus produk beserta upload gambarnya. Gambar otomatis tersimpan di `public/images/products/`.
 
-App\Models\Product::create([
-    'name' => 'Nama Produk',
-    'slug' => 'nama-produk',
-    'price' => 150000,
-    'category' => 'pants', // shirts | tshirts | pants | outerwear
-    'size' => '30/M',
-    'waist_size' => '76 cm',
-    'length' => '98 cm',
-    'code' => 'CG-20',
-    'image' => '/images/nama-produk.jpg',
-    'stock' => 1,
-    'is_new_arrival' => true,
-]);
-```
+Supaya produk yang ditambahkan lewat admin panel ikut terbawa saat deploy ulang / ke server baru, tambahkan juga entrinya ke `database/seeders/ProductSeeder.php` (array `$products`), lalu commit & push perubahannya. Seeder ini pakai `updateOrCreate` berdasarkan `slug`, jadi aman dijalankan berkali-kali tanpa membuat data duplikat.
 
 ---
 
