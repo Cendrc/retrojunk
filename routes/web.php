@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SearchController;
@@ -32,9 +34,17 @@ Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remov
 Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 Route::get('/cart/items', [CartController::class, 'items'])->name('cart.items');
 
+Route::middleware('auth')->group(function () {
+    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+    Route::patch('/addresses/{id}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
+});
+
 // Checkout
 // Checkout - hanya untuk user yang sudah login
 Route::middleware('auth')->group(function () {
+    Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle'])->name('midtrans.notification');
+    Route::get('/orders/{id}/status', [CheckoutController::class, 'checkStatus'])->name('order.status');
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/payment/{id}', [CheckoutController::class, 'payment'])->name('checkout.payment');

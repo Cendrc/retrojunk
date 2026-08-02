@@ -50,4 +50,8 @@ class User extends Authenticatable
     {
         return $this->is_admin === true;
     }
+    public function addresses()
+    {
+        return $this->hasMany(Address::class)->orderByDesc('is_default')->orderByDesc('id');
+    }
 }

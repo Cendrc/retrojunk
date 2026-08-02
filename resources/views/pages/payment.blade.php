@@ -14,16 +14,14 @@
             <p>Order ID: <strong>#{{ $order->id }}</strong></p>
         </div>
 
-        {{-- QRIS --}}
+       {{-- QRIS --}}
         @if($order->payment_method === 'qris')
         <div class="payment-card">
             <h2>Scan QRIS untuk Bayar</h2>
             <div class="qris-box">
-                <img src="{{ asset('images/qris-code.png') }}" alt="QRIS Code" class="qris-image"
-                     onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=RetroJunk-Order-{{ $order->id }}-{{ $order->total }}'">
+                <img src="{{ asset('images/qris-code.png') }}" alt="QRIS Code" class="qris-image">
                 <div class="qris-info">
                     <p class="qris-merchant">Retro Junk Preloved</p>
-                    <p class="qris-id">NMID: ID1234567890123</p>
                 </div>
             </div>
             <div class="payment-amount">
@@ -37,27 +35,17 @@
         {{-- Bank Transfer --}}
         @if($order->payment_method === 'bank_transfer')
         <div class="payment-card">
-            <h2>Transfer ke Salah Satu Rekening Berikut</h2>
+            <h2>Transfer ke Virtual Account Berikut</h2>
 
             <div class="bank-list">
                 <div class="bank-item">
-                    <div class="bank-item__logo">BCA</div>
+                    <div class="bank-item__logo">{{ strtoupper($order->va_bank) }}</div>
                     <div class="bank-item__info">
-                        <p class="bank-item__name">Bank Central Asia</p>
-                        <p class="bank-item__number">1234567890</p>
-                        <p class="bank-item__owner">a.n. Retro Junk</p>
+                        <p class="bank-item__name">Virtual Account {{ strtoupper($order->va_bank) }}</p>
+                        <p class="bank-item__number">{{ $order->va_number }}</p>
+                        <p class="bank-item__owner">Nomor VA khusus untuk pesanan ini</p>
                     </div>
-                    <button class="bank-item__copy" data-copy="1234567890">Salin</button>
-                </div>
-
-                <div class="bank-item">
-                    <div class="bank-item__logo">MANDIRI</div>
-                    <div class="bank-item__info">
-                        <p class="bank-item__name">Bank Mandiri</p>
-                        <p class="bank-item__number">9876543210</p>
-                        <p class="bank-item__owner">a.n. Retro Junk</p>
-                    </div>
-                    <button class="bank-item__copy" data-copy="9876543210">Salin</button>
+                    <button class="bank-item__copy" data-copy="{{ $order->va_number }}">Salin</button>
                 </div>
             </div>
 
@@ -75,7 +63,7 @@
                 <p>Total yang harus dibayar:</p>
                 <h3>IDR {{ number_format($order->total, 0, ',', '.') }}</h3>
             </div>
-        @endif
+            <p class="payment-help">Transfer sesuai nominal di atas melalui ATM, m-banking, atau internet banking {{ strtoupper($order->va_bank) }}. Status pembayaran akan diperbarui otomatis begitu pembayaran diterima.</p>
 
         {{-- COD --}}
         @if($order->payment_method === 'cod')
@@ -102,11 +90,11 @@
         </div>
         @endif
 
-        {{-- Upload Bukti (QRIS & Bank Transfer) --}}
-        @if(in_array($order->payment_method, ['qris', 'bank_transfer']))
+        {{-- Upload Bukti — WAJIB untuk QRIS (manual, tanpa auto-verifikasi) --}}
+        @if($order->payment_method === 'qris')
         <div class="payment-card">
             <h2>Upload Bukti Pembayaran</h2>
-            <p>Setelah transfer, upload bukti pembayaran untuk konfirmasi otomatis.</p>
+            <p>Setelah transfer, upload bukti pembayaran untuk konfirmasi oleh admin.</p>
 
             <form action="{{ route('checkout.upload', $order->id) }}" method="POST" enctype="multipart/form-data" class="upload-form">
                 @csrf
@@ -128,26 +116,81 @@
                 <button type="submit" class="btn-payment">Konfirmasi Pembayaran</button>
             </form>
         </div>
-        @else
+        @endif
+
+        {{-- Upload Bukti — OPSIONAL untuk Bank Transfer (auto-verifikasi via Midtrans) --}}
+        @if($order->payment_method === 'bank_transfer')
+        <div class="payment-card">
+            <h2>Upload Bukti Pembayaran (Opsional)</h2>
+            <p>Status pembayaran akan terverifikasi otomatis. Upload bukti ini hanya sebagai cadangan apabila verifikasi otomatis mengalami kendala.</p>
+
+            <form action="{{ route('checkout.upload', $order->id) }}" method="POST" enctype="multipart/form-data" class="upload-form">
+                @csrf
+                <label class="upload-zone">
+                    <input type="file" name="payment_proof" accept="image/*" id="proofInput2">
+                    <div class="upload-zone__inner">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <p class="upload-zone__title">Klik untuk upload bukti (opsional)</p>
+                        <p class="upload-zone__hint">JPG, PNG (maks. 2MB)</p>
+                        <p class="upload-zone__filename" id="fileName2"></p>
+                    </div>
+                </label>
+                @error('payment_proof')<span class="form-error">{{ $message }}</span>@enderror
+
+                <button type="submit" class="btn-payment">Upload Bukti</button>
+            </form>
+        </div>
+
+        <div class="payment-actions">
+            <a href="{{ route('checkout.success') }}?order_id={{ $order->id }}" class="btn-payment" style="display:block;text-align:center;text-decoration:none;">
+                Selesai
+            </a>
+        </div>
+        @endif
+
+        {{-- COD: tombol Selesai langsung --}}
+        @if($order->payment_method === 'cod')
         <div class="payment-actions">
             <a href="{{ route('checkout.success') }}" class="btn-payment" style="display:block;text-align:center;text-decoration:none;">
                 Selesai
             </a>
         </div>
         @endif
-    </div>
-</section>
 
 <div class="toast" id="toast"></div>
 
+@if($order->payment_method === 'bank_transfer' && $order->payment_status === 'unpaid')
+<script>
+const rjPaymentPoll = setInterval(() => {
+    fetch('{{ route('order.status', $order->id) }}')
+        .then(r => r.json())
+        .then(data => {
+            if (data.payment_status === 'paid') {
+                clearInterval(rjPaymentPoll);
+                window.location.href = '{{ route('checkout.success') }}?order_id={{ $order->id }}';
+            }
+        })
+        .catch(() => {});
+}, 5000);
+</script>
+@endif
+
 <script>
 // Show selected file name
-document.getElementById('proofInput')?.addEventListener('change', function () {
-    const fileName = document.getElementById('fileName');
-    if (this.files[0]) {
-        fileName.textContent = '✓ ' + this.files[0].name;
-        fileName.style.color = '#5c6b3a';
-    }
+['proofInput', 'proofInput2'].forEach((inputId, i) => {
+    const input = document.getElementById(inputId);
+    const fileNameId = i === 0 ? 'fileName' : 'fileName2';
+    input?.addEventListener('change', function () {
+        const fileName = document.getElementById(fileNameId);
+        if (this.files[0]) {
+            fileName.textContent = '✓ ' + this.files[0].name;
+            fileName.style.color = '#5c6b3a';
+        }
+    });
 });
 
 // Copy bank number

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\MidtransService;
 use App\Helpers\ShippingCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -131,21 +132,41 @@ class CheckoutController extends Controller
             
             // TRANSACTION COMMIT: Bersihkan cart & redirect ke payment
             session()->forget('cart');
+
+            // Simpan alamat baru jika pengguna login, memilih isi manual, dan mencentang "simpan alamat"
+            if (auth()->check() && $request->boolean('save_address') && $request->input('address_choice') === 'new') {
+                $user = auth()->user();
+                if ($user->addresses()->count() < 10) {
+                    $user->addresses()->create([
+                        'label' => 'Alamat',
+                        'name' => $request->name,
+                        'phone' => $request->phone,
+                        'address' => $request->address,
+                        'province' => $request->province,
+                        'city' => $request->city,
+                        'district' => $request->district,
+                        'postal_code' => $request->postal_code,
+                        'is_default' => $user->addresses()->count() === 0,
+                    ]);
+                }
+            }
+
             session()->flash('order_id', $order->id);
-            
-            return redirect()->route('checkout.payment', $order->id);
-            
-        } catch (\Exception $e) {
-            Log::warning('Checkout failed: ' . $e->getMessage(), [
-                'user_id' => auth()->id(),
-                'cart' => $cart,
-            ]);
-            
-            // Kalau exception ada info produk (stok habis), redirect ke halaman produk
-            if (isset($e->productId)) {
-                // Hapus produk yang habis dari cart
-                $cart = session()->get('cart', []);
-                unset($cart[$e->productId]);
+                        session()->flash('order_id', $order->id);
+                        
+                        return redirect()->route('checkout.payment', $order->id);
+                        
+                    } catch (\Exception $e) {
+                        Log::warning('Checkout failed: ' . $e->getMessage(), [
+                            'user_id' => auth()->id(),
+                            'cart' => $cart,
+                        ]);
+                        
+                        // Kalau exception ada info produk (stok habis), redirect ke halaman produk
+                        if (isset($e->productId)) {
+                            // Hapus produk yang habis dari cart
+                            $cart = session()->get('cart', []);
+                            unset($cart[$e->productId]);
                 session()->put('cart', $cart);
                 
                 // Redirect ke halaman detail produk dengan flash notification
@@ -162,10 +183,26 @@ class CheckoutController extends Controller
         }
     }
 
-    public function payment($id)
+    public function payment($id, MidtransService $midtrans)
     {
         $order = Order::with('items.product')->findOrFail($id);
+
+        if ($order->payment_method === 'bank_transfer' && !$order->midtrans_transaction_id) {
+            try {
+                $order = $midtrans->chargeBankTransfer($order, 'bca');
+            } catch (\Exception $e) {
+                Log::error('Midtrans charge failed: ' . $e->getMessage());
+                return redirect()->route('home')->with('error', 'Gagal membuat transaksi pembayaran. Silakan coba lagi.');
+            }
+        }
+
         return view('pages.payment', compact('order'));
+    }
+
+    public function checkStatus($id)
+    {
+        $order = Order::findOrFail($id);
+        return response()->json(['payment_status' => $order->payment_status]);
     }
 
     public function uploadProof(Request $request, $id)
@@ -187,10 +224,8 @@ class CheckoutController extends Controller
 
     public function success(Request $request)
     {
-        $order = null;
-        if (session('order_id')) {
-            $order = Order::with('items.product')->find(session('order_id'));
-        }
+        $orderId = session('order_id') ?? $request->query('order_id');
+        $order = $orderId ? Order::with('items.product')->find($orderId) : null;
         return view('pages.checkout-success', compact('order'));
     }
 }

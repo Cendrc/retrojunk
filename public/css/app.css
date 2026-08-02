@@ -14,9 +14,9 @@
     --cream: #f0ebe1;
     --cream-dark: #e0d9cc;
     --white: #faf8f5;
-    --text-dark: #1a1a1a;
-    --text-mid: #4a4a4a;
-    --text-light: #888;
+    --text-dark: #0e1116;
+    --text-mid: #000000;
+    --text-light: #000000;
     --red: #c0392b;
     --nav-h: 100px;
     --font-display: 'Playfair Display', serif;
@@ -2081,6 +2081,38 @@ main { padding-top: var(--nav-h); }
     margin: 0 auto;
 }
 
+/* ===================== PAYMENT PROOF NOTICE ===================== */
+.payment-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: #fff7ed;
+    border: 1.5px solid #fdba74;
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.payment-notice__icon {
+    width: 22px;
+    height: 22px;
+    color: #ea580c;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.payment-notice__text {
+    font-size: 0.9rem;
+    color: #7c2d12;
+    line-height: 1.5;
+}
+
+.payment-notice__text strong {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
 /* ===================== SELECT DROPDOWN (CHECKOUT) ===================== */
 select.form-input {
     appearance: none;
@@ -3396,4 +3428,69 @@ input[type="number"]::-webkit-inner-spin-button {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ===================== SAVED ADDRESS PICKER ===================== */
+.saved-address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+}
+.saved-address-option {
+    cursor: pointer;
+    display: block;
+}
+.saved-address-option input {
+    display: none;
+}
+.saved-address-option__content {
+    background: rgba(255,255,255,0.06);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1.1rem;
+    transition: all var(--transition);
+}
+.saved-address-option:hover .saved-address-option__content {
+    background: rgba(255,255,255,0.1);
+}
+.saved-address-option input:checked + .saved-address-option__content {
+    background: rgba(255,255,255,0.92);
+    border-color: var(--brown);
+}
+.saved-address-option__label {
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.saved-address-option__detail {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+}
+.saved-address-option input:checked + .saved-address-option__content .saved-address-option__label,
+.saved-address-option input:checked + .saved-address-option__content .saved-address-option__detail {
+    color: var(--text-dark);
+}
+.saved-address-option__badge {
+    font-size: 0.65rem;
+    background: var(--olive-light);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.save-address-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    margin-top: 0.75rem;
+    cursor: pointer;
 }

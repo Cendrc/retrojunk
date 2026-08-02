@@ -31,55 +31,102 @@
                 <div class="form-section">
                     <h2>Delivery</h2>
 
-                    <div class="form-group">
-                        <input type="text" name="name" class="form-input" placeholder="Nama Lengkap"
-                            value="{{ auth()->user()->name ?? old('name') }}" required>
-                        @error('name')<span class="form-error">{{ $message }}</span>@enderror
-                    </div>
+                    @auth
+                    @if(auth()->user()->addresses->count() > 0)
+                    <div class="saved-address-list" id="savedAddressList">
+                        @foreach(auth()->user()->addresses as $addr)
+                        <label class="saved-address-option">
+                            <input type="radio" name="address_choice" value="{{ $addr->id }}"
+                                data-name="{{ $addr->name }}"
+                                data-phone="{{ $addr->phone }}"
+                                data-address="{{ $addr->address }}"
+                                data-province="{{ $addr->province }}"
+                                data-city="{{ $addr->city }}"
+                                data-district="{{ $addr->district }}"
+                                data-postal="{{ $addr->postal_code }}"
+                                {{ $loop->first ? 'checked' : '' }}>
+                            <div class="saved-address-option__content">
+                                <div class="saved-address-option__label">
+                                    {{ $addr->label }}
+                                    @if($addr->is_default)<span class="saved-address-option__badge">Utama</span>@endif
+                                </div>
+                                <div class="saved-address-option__detail">
+                                    {{ $addr->name }} — {{ $addr->phone }}<br>
+                                    {{ Str::limit($addr->address, 60) }}, {{ $addr->district }}, {{ $addr->city }}
+                                </div>
+                            </div>
+                        </label>
+                        @endforeach
 
-                    <div class="form-group">
-                        <input type="text" name="address" class="form-input" placeholder="Alamat Lengkap (Jalan, No. Rumah, RT/RW)"
-                            value="{{ old('address') }}" required>
-                        @error('address')<span class="form-error">{{ $message }}</span>@enderror
+                        <label class="saved-address-option">
+                            <input type="radio" name="address_choice" value="new">
+                            <div class="saved-address-option__content">
+                                <div class="saved-address-option__label">+ Alamat Baru</div>
+                                <div class="saved-address-option__detail">Isi alamat pengiriman baru</div>
+                            </div>
+                        </label>
                     </div>
+                    @endif
+                    @endauth
 
-                    <div class="form-group">
-                        <select name="province" id="provinceSelect" class="form-input" required>
-                            <option value="">Pilih Provinsi</option>
-                        </select>
-                        @error('province')<span class="form-error">{{ $message }}</span>@enderror
-                    </div>
-
-                    <div class="form-row">
+                    <div id="manualAddressFields">
                         <div class="form-group">
-                            <select name="city" id="citySelect" class="form-input" required disabled>
-                                <option value="">Pilih Kota/Kabupaten</option>
+                            <input type="text" name="name" id="nameInput" class="form-input" placeholder="Nama Lengkap"
+                                value="{{ auth()->user()->name ?? old('name') }}" required>
+                            @error('name')<span class="form-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="address" id="addressInput" class="form-input" placeholder="Alamat Lengkap (Jalan, No. Rumah, RT/RW)"
+                                value="{{ old('address') }}" required>
+                            @error('address')<span class="form-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
+                            <select name="province" id="provinceSelect" class="form-input" required>
+                                <option value="">Pilih Provinsi</option>
                             </select>
-                            @error('city')<span class="form-error">{{ $message }}</span>@enderror
+                            @error('province')<span class="form-error">{{ $message }}</span>@enderror
                         </div>
-                        <div class="form-group">
-                            <select name="district" id="districtSelect" class="form-input" required disabled>
-                                <option value="">Pilih Kecamatan</option>
-                            </select>
-                            @error('district')<span class="form-error">{{ $message }}</span>@enderror
-                        </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <input type="tel" name="phone" class="form-input" placeholder="Nomor HP (contoh: 081234567890)"
-                                value="{{ old('phone') }}" pattern="[0-9]{10,15}" maxlength="15" 
-                                inputmode="numeric" required
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            @error('phone')<span class="form-error">{{ $message }}</span>@enderror
+                        <div class="form-row">
+                            <div class="form-group">
+                                <select name="city" id="citySelect" class="form-input" required disabled>
+                                    <option value="">Pilih Kota/Kabupaten</option>
+                                </select>
+                                @error('city')<span class="form-error">{{ $message }}</span>@enderror
+                            </div>
+                            <div class="form-group">
+                                <select name="district" id="districtSelect" class="form-input" required disabled>
+                                    <option value="">Pilih Kecamatan</option>
+                                </select>
+                                @error('district')<span class="form-error">{{ $message }}</span>@enderror
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <input type="text" name="postal_code" class="form-input" placeholder="Kode Pos"
-                                value="{{ old('postal_code') }}" pattern="[0-9]{5}" maxlength="5"
-                                inputmode="numeric" required
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            @error('postal_code')<span class="form-error">{{ $message }}</span>@enderror
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="tel" name="phone" id="phoneInput" class="form-input" placeholder="Nomor HP (contoh: 081234567890)"
+                                    value="{{ old('phone') }}" pattern="[0-9]{10,15}" maxlength="15" 
+                                    inputmode="numeric" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                @error('phone')<span class="form-error">{{ $message }}</span>@enderror
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="postal_code" id="postalInput" class="form-input" placeholder="Kode Pos"
+                                    value="{{ old('postal_code') }}" pattern="[0-9]{5}" maxlength="5"
+                                    inputmode="numeric" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                @error('postal_code')<span class="form-error">{{ $message }}</span>@enderror
+                            </div>
                         </div>
+
+                        @auth
+                        <label class="save-address-check" id="saveAddressCheckWrap">
+                            <input type="checkbox" name="save_address" value="1" id="saveAddressCheck">
+                            Simpan alamat ini untuk checkout berikutnya
+                        </label>
+                        @endauth
                     </div>
                 </div>
 
@@ -457,7 +504,89 @@ citySelect.addEventListener('change', async function () {
         setTimeout(calculateShipping, 100);
     });
 
+    // ===================== SAVED ADDRESS HANDLING =====================
+    const addressChoiceRadios = document.querySelectorAll('input[name="address_choice"]');
+    const saveAddressCheckWrap = document.getElementById('saveAddressCheckWrap');
+
+    function waitForOptions(selectEl, timeout) {
+        return new Promise(resolve => {
+            const start = Date.now();
+            const check = () => {
+                if (!selectEl.disabled && selectEl.options.length > 1) return resolve();
+                if (Date.now() - start > timeout) return resolve();
+                setTimeout(check, 150);
+            };
+            check();
+        });
+    }
+
+    async function selectProvinceByName(name) {
+        const opt = [...provinceSelect.options].find(o => o.value.toUpperCase() === (name || '').toUpperCase());
+        if (!opt) return;
+        provinceSelect.value = opt.value;
+        provinceSelect.dispatchEvent(new Event('change'));
+        await waitForOptions(citySelect, 4000);
+    }
+
+    async function selectCityByName(name) {
+        const opt = [...citySelect.options].find(o => o.value.toUpperCase() === (name || '').toUpperCase());
+        if (!opt) return;
+        citySelect.value = opt.value;
+        citySelect.dispatchEvent(new Event('change'));
+        await waitForOptions(districtSelect, 4000);
+    }
+
+    function selectDistrictByName(name) {
+        const opt = [...districtSelect.options].find(o => o.value.toUpperCase() === (name || '').toUpperCase());
+        if (opt) districtSelect.value = opt.value;
+    }
+
+    async function applySavedAddress(radio) {
+        const d = radio.dataset;
+        document.getElementById('nameInput').value = d.name || '';
+        document.getElementById('addressInput').value = d.address || '';
+        document.getElementById('phoneInput').value = d.phone || '';
+        document.getElementById('postalInput').value = d.postal || '';
+
+        await selectProvinceByName(d.province);
+        await selectCityByName(d.city);
+        selectDistrictByName(d.district);
+
+        calculateShipping();
+
+        if (saveAddressCheckWrap) saveAddressCheckWrap.style.display = 'none';
+    }
+
+    function clearAddressFields() {
+        document.getElementById('addressInput').value = '';
+        document.getElementById('phoneInput').value = '';
+        document.getElementById('postalInput').value = '';
+        provinceSelect.value = '';
+        citySelect.innerHTML = '<option value="">Pilih Kota/Kabupaten</option>';
+        citySelect.disabled = true;
+        districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+        districtSelect.disabled = true;
+        calculateShipping();
+        if (saveAddressCheckWrap) saveAddressCheckWrap.style.display = 'flex';
+    }
+
+    addressChoiceRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            if (this.value === 'new') {
+                clearAddressFields();
+            } else {
+                applySavedAddress(this);
+            }
+        });
+    });
+
 // Initialize
-loadProvinces();
+(async () => {
+    await loadProvinces();
+    const checkedRadio = document.querySelector('input[name="address_choice"]:checked');
+    if (checkedRadio && checkedRadio.value !== 'new') {
+        await applySavedAddress(checkedRadio);
+    }
+})();
 </script>
 @endsection
