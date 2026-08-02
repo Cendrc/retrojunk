@@ -40,6 +40,7 @@ class ProductController extends Controller
             'size' => 'nullable|string',
             'code' => 'nullable|string',
             'stock' => 'required|integer|min:0',
+            'weight' => 'required|integer|min:1',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'description' => 'nullable|string',
             'is_new_arrival' => 'boolean',
@@ -72,6 +73,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'category' => 'required|in:shirts,tshirts,pants,outerwear',
             'stock' => 'required|integer|min:0',
+            'weight' => 'required|integer|min:1',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 

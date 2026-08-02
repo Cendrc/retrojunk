@@ -10,7 +10,7 @@ class Product extends Model
         'name', 'slug', 'price', 'category', 'description',
         'size', 'waist_size', 'length', 'open_leg',
         'chest_width', 'body_length', 'sleeve_length',
-        'code', 'image', 'images', 'stock', 'is_new_arrival'
+        'code', 'image', 'images', 'stock', 'weight', 'is_new_arrival'
     ];
 
     protected $casts = [
@@ -31,5 +31,14 @@ class Product extends Model
     public function scopeNewArrivals($query)
     {
         return $query->where('is_new_arrival', true);
+    }
+
+    /**
+     * Total berat (gram) untuk sekumpulan product ID di keranjang.
+     * Tiap entri keranjang dianggap qty 1 (barang preloved satuan).
+     */
+    public static function totalWeightFor(array $productIds): int
+    {
+        return (int) static::whereIn('id', $productIds)->sum('weight');
     }
 }

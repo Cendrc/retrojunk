@@ -7,23 +7,25 @@
 
 <div class="admin-panel">
     <div class="admin-panel__body">
-        <div class="admin-form-group">
-            <label>Gambar Produk</label>
-            @if($product->image)
-            <div style="margin-bottom: 0.75rem;">
-                <img src="{{ asset($product->image) }}" alt="Preview" style="max-width: 150px; border-radius: 8px;"
-                    onerror="this.style.display='none'">
-                <small style="color:#9ca3af; display:block; margin-top:0.25rem;">Gambar saat ini</small>
-            </div>
-            @endif
-            <input type="file" name="image" class="admin-input" accept="image/jpeg,image/png,image/webp">
-            <small style="color:#9ca3af; display:block; margin-top:0.35rem;">
-                Kosongkan jika tidak ingin mengganti gambar. Format: JPG, PNG, atau WEBP. Maks 2MB.
-            </small>
-            @error('image') <span class="admin-error">{{ $message }}</span> @enderror
-        </div>
+        <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+
+            <div class="admin-form-group">
+                <label>Gambar Produk</label>
+                @if($product->image)
+                <div style="margin-bottom: 0.75rem;">
+                    <img src="{{ asset($product->image) }}" alt="Preview" style="max-width: 150px; border-radius: 8px;"
+                        onerror="this.style.display='none'">
+                    <small style="color:#9ca3af; display:block; margin-top:0.25rem;">Gambar saat ini</small>
+                </div>
+                @endif
+                <input type="file" name="image" class="admin-input" accept="image/jpeg,image/png,image/webp">
+                <small style="color:#9ca3af; display:block; margin-top:0.35rem;">
+                    Kosongkan jika tidak ingin mengganti gambar. Format: JPG, PNG, atau WEBP. Maks 2MB.
+                </small>
+                @error('image') <span class="admin-error">{{ $message }}</span> @enderror
+            </div>
 
             <div class="admin-form-row">
                 <div class="admin-form-group">
@@ -63,6 +65,14 @@
                 <div class="admin-form-group">
                     <label>Stok *</label>
                     <input type="number" name="stock" class="admin-input" value="{{ old('stock', $product->stock) }}" min="0" required>
+                </div>
+            </div>
+
+            <div class="admin-form-row">
+                <div class="admin-form-group">
+                    <label>Berat (gram) *</label>
+                    <input type="number" name="weight" class="admin-input" value="{{ old('weight', $product->weight) }}" min="1" required>
+                    @error('weight') <span class="admin-error">{{ $message }}</span> @enderror
                 </div>
             </div>
 

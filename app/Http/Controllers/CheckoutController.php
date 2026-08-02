@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\MidtransService;
-use App\Helpers\ShippingCalculator;
+use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,18 +22,26 @@ class CheckoutController extends Controller
         return view('pages.checkout', compact('cart', 'total'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, RajaOngkirService $rajaOngkir)
     {
         $cart = session()->get('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('home')->with('error', 'Keranjang kosong.');
         }
-        
+
         $request->validate([
             'email' => 'required|email',
             'name' => 'required|string|max:255',
             'phone' => 'required|string|regex:/^[0-9]{10,15}$/',
+            'address' => 'required|string',
+            'destination_id' => 'required|integer',
+            'province' => 'required|string',
+            'city' => 'required|string',
+            'district' => 'required|string',
+            'postal_code' => 'required|string',
+            'courier' => 'required|string',
+            'shipping_service' => 'required|string',
         ]);
 
         // ==========================================================
@@ -42,23 +50,23 @@ class CheckoutController extends Controller
         // race condition / pemesanan ganda pada produk stok satuan.
         // ==========================================================
         try {
-            $order = DB::transaction(function () use ($request, $cart) {
-                
+            $order = DB::transaction(function () use ($request, $cart, $rajaOngkir) {
+
                 // STEP 1: Lock semua produk di cart & cek stok
                 $productIds = array_column($cart, 'id');
                 $products = Product::whereIn('id', $productIds)
                     ->lockForUpdate()
                     ->get()
                     ->keyBy('id');
-                
+
                 // STEP 2: Validasi stok setiap produk
                 foreach ($cart as $item) {
                     $product = $products->get($item['id']);
-                    
+
                     if (!$product) {
                         throw new \Exception("Produk '{$item['name']}' tidak ditemukan.");
                     }
-                    
+
                     if ($product->stock < 1) {
                         // Custom exception dengan info produk yang habis
                         $exception = new \Exception("Stok produk '{$product->name}' sudah habis.");
@@ -68,17 +76,31 @@ class CheckoutController extends Controller
                         throw $exception;
                     }
                 }
-                
-                // STEP 3: Hitung total pembayaran
+
+                // STEP 3: Hitung total pembayaran. Ongkir DIHITUNG ULANG di
+                // server (bukan percaya nilai dari form) supaya tidak bisa
+                // dimanipulasi lewat hidden input di browser.
                 $subtotal = array_sum(array_column($cart, 'price'));
-                $shipping = ShippingCalculator::calculate(
-                    $request->province, 
-                    $request->city, 
-                    $subtotal
+                $weight = Product::totalWeightFor($productIds);
+
+                $options = $rajaOngkir->calculateCost(
+                    (int) config('rajaongkir.origin_id'),
+                    (int) $request->destination_id,
+                    $weight
                 );
-                $shippingCost = $shipping['cost'];
+
+                $chosen = collect($options)->first(fn ($opt) =>
+                    strcasecmp($opt['courier_code'], $request->courier) === 0
+                    && strcasecmp($opt['service'], $request->shipping_service) === 0
+                );
+
+                if (!$chosen) {
+                    throw new \Exception('Ongkos kirim yang dipilih sudah tidak tersedia. Silakan pilih ulang kurir.');
+                }
+
+                $shippingCost = $chosen['cost'];
                 $total = $subtotal + $shippingCost;
-                
+
                 // STEP 4: Buat Order
                 $order = Order::create([
                     'user_id' => auth()->id(),
@@ -90,10 +112,13 @@ class CheckoutController extends Controller
                     'province' => $request->province,
                     'city' => $request->city,
                     'district' => $request->district,
+                    'subdistrict' => $request->subdistrict,
                     'postal_code' => $request->postal_code,
                     'subtotal' => $subtotal,
                     'shipping_cost' => $shippingCost,
-                    'shipping_zone' => $shipping['name'],
+                    'shipping_zone' => $chosen['courier_name'] . ' - ' . $chosen['service'],
+                    'courier' => $chosen['courier_code'],
+                    'shipping_service' => $chosen['service'],
                     'total' => $total,
                     'payment_method' => $request->payment_method,
                     'order_status' => 'pending',
@@ -145,6 +170,7 @@ class CheckoutController extends Controller
                         'province' => $request->province,
                         'city' => $request->city,
                         'district' => $request->district,
+                        'subdistrict' => $request->subdistrict,
                         'postal_code' => $request->postal_code,
                         'is_default' => $user->addresses()->count() === 0,
                     ]);

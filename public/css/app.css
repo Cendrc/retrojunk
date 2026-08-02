@@ -2192,6 +2192,105 @@ input[type="number"]::-webkit-inner-spin-button {
     color: var(--olive-dark);
 }
 
+.shipping-info__error {
+    color: #e0a0a0;
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+    background: rgba(200, 60, 60, 0.12);
+    border-radius: var(--radius-sm);
+}
+
+.shipping-option {
+    cursor: pointer;
+    display: block;
+    margin-bottom: 0.6rem;
+}
+.shipping-option input {
+    display: none;
+}
+.shipping-option__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255,255,255,0.92);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1.1rem;
+    transition: all var(--transition);
+}
+.shipping-option input:checked + .shipping-option__content {
+    border-color: var(--brown);
+    background: #fff;
+}
+.shipping-option__name {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+.shipping-option__desc {
+    font-size: 0.78rem;
+    color: var(--text-mid);
+    margin-top: 2px;
+}
+.shipping-option__cost {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--brown);
+    white-space: nowrap;
+}
+
+.destination-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: #fff;
+    border: 2px solid var(--brown);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    max-height: 260px;
+    overflow-y: auto;
+}
+.destination-results__item {
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.destination-results__item:hover {
+    background: rgba(92, 107, 58, 0.1);
+}
+.destination-results__empty {
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+}
+.destination-selected {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255,255,255,0.92);
+    border: 2px solid var(--brown);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+}
+.destination-selected button {
+    background: none;
+    border: none;
+    color: var(--brown);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+    flex-shrink: 0;
+}
+
 .shipping-info__promo {
     margin-top: 0.75rem;
     padding: 0.75rem 1rem;

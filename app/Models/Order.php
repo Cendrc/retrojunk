@@ -10,9 +10,9 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id', 'session_id', 'tracking_code', 'email', 'name', 'phone',
-        'address', 'province', 'city', 'district', 'postal_code',
+        'address', 'province', 'city', 'district', 'subdistrict', 'postal_code',
         'subtotal', 'shipping_cost', 'shipping_zone', 'total',
-        'payment_method', 'payment_proof', 'courier', 'tracking_number',
+        'payment_method', 'payment_proof', 'courier', 'shipping_service', 'tracking_number',
         'order_status', 'payment_status',
         'notes', 'confirmed_at', 'shipped_at', 'delivered_at',
     ];

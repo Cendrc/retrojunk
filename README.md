@@ -12,6 +12,7 @@ Website toko fashion preloved dengan tampilan retro vintage, dibangun menggunaka
 - **Cart Page** — Halaman keranjang penuh dengan ringkasan pesanan
 - **Checkout Page** — Form kontak & pengiriman, alamat tersimpan, ringkasan order
 - **Pembayaran** — Integrasi Midtrans (bank transfer) + opsi QRIS manual
+- **Ongkos Kirim Real** — Integrasi RajaOngkir/Komerce, pembeli pilih kurir & layanan sesuai berat produk asli
 - **Kategori** — New Arrivals, Shirts, T-Shirts, Pants, Outerwear
 - **Pencarian** — Search produk real-time
 - **Autentikasi** — Register, Login, Logout
@@ -71,6 +72,29 @@ php artisan serve
 Buka `http://localhost:8000` di browser. Login admin panel di `/admin` memakai `ADMIN_EMAIL` / `ADMIN_PASSWORD` yang sudah diisi.
 
 > Setiap kali ada produk baru yang ditambahkan lewat admin panel dan ingin ikut terbawa ke deployment berikutnya, tambahkan juga datanya ke `database/seeders/ProductSeeder.php` (seeder ini idempotent — aman dijalankan ulang, tidak akan menduplikasi produk yang sudah ada).
+
+---
+
+## 🚚 Setup Ongkos Kirim (RajaOngkir/Komerce)
+
+Ongkir dihitung real-time dari API RajaOngkir berdasarkan berat produk & lokasi tujuan — bukan lagi tarif kira-kira per zona.
+
+1. Daftar & ambil API key gratis (tier "Starter") di [rajaongkir.komerce.id](https://rajaongkir.komerce.id). Tier gratis mendukung kurir JNE, TIKI, POS.
+2. Isi `.env`:
+   ```
+   RAJAONGKIR_API_KEY=isi_api_key_disini
+   RAJAONGKIR_COURIERS=jne,tiki,pos
+   ```
+3. Cari subdistrict ID lokasi toko (titik asal pengiriman):
+   ```bash
+   php artisan shipping:search-origin "nama kecamatan/kota toko"
+   ```
+   Salin ID yang sesuai ke `.env`:
+   ```
+   RAJAONGKIR_ORIGIN_ID=isi_id_hasil_pencarian
+   ```
+4. Isi **berat** tiap produk (gram) lewat Admin Panel → Produk → Edit. Produk lama sudah diisi otomatis dengan berat rata-rata per kategori (pants 400g, outerwear 500g, shirts 200g, tshirts 180g) — sesuaikan manual kalau perlu, karena ongkir dihitung dari nilai ini.
+5. Kalau nanti upgrade paket Komerce untuk kurir tambahan (J&T, SiCepat, AnterAja, dll), tinggal tambahkan kodenya ke `RAJAONGKIR_COURIERS` di `.env`, dipisah koma.
 
 ---
 

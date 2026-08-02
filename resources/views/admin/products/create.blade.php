@@ -56,6 +56,17 @@
                 </div>
             </div>
 
+            <div class="admin-form-row">
+                <div class="admin-form-group">
+                    <label>Berat (gram) *</label>
+                    <input type="number" name="weight" class="admin-input" value="{{ old('weight', 300) }}" min="1" required>
+                    <small style="color:#9ca3af; display:block; margin-top:0.35rem;">
+                        Dipakai untuk hitung ongkir asli. Timbang produk kalau bisa — jangan asal isi.
+                    </small>
+                    @error('weight') <span class="admin-error">{{ $message }}</span> @enderror
+                </div>
+            </div>
+
             <div class="admin-form-group">
                 <label>Gambar Produk</label>
                 <input type="file" name="image" class="admin-input" accept="image/jpeg,image/png,image/webp">

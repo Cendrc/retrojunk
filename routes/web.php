@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\AdminManagementController;
+use App\Http\Controllers\ShippingController;
 
 // Landing / Home
 Route::get('/', [ProductController::class, 'index'])->name('home');
@@ -51,6 +52,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/payment/{id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
     Route::post('/checkout/payment/{id}/upload', [CheckoutController::class, 'uploadProof'])->name('checkout.upload');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    // Shipping (proxy ke RajaOngkir — API key tetap di server)
+    Route::get('/shipping/search', [ShippingController::class, 'search'])->name('shipping.search');
+    Route::post('/shipping/cost', [ShippingController::class, 'cost'])->name('shipping.cost');
 });
 
 // Tracking
