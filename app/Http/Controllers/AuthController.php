@@ -4,11 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Order;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -98,15 +95,7 @@ class AuthController extends Controller
             return back()->with('error', 'Pesanan ini sudah diproses dan tidak bisa dibatalkan sendiri. Silakan hubungi kami.');
         }
 
-        DB::transaction(function () use ($order) {
-            foreach ($order->items as $item) {
-                if ($item->product_id) {
-                    Product::where('id', $item->product_id)->increment('stock', $item->quantity);
-                }
-            }
-
-            $order->update(['order_status' => 'cancelled']);
-        });
+        $order->cancelAndRestoreStock();
 
         return back()->with('success', 'Pesanan berhasil dibatalkan.');
     }

@@ -5,10 +5,16 @@ namespace App\Services;
 use App\Models\Order;
 use Midtrans\Config;
 use Midtrans\CoreApi;
-use Illuminate\Support\Facades\Log;
 
 class MidtransService
 {
+    /**
+     * Batas waktu pembayaran untuk QRIS & Transfer Bank. Tanpa custom_expiry,
+     * default Midtrans beda-beda per metode (QRIS 15 menit, Bank Transfer/VA
+     * 24 jam) — disamakan jadi 24 jam untuk keduanya di sini.
+     */
+    private const EXPIRY_HOURS = 24;
+
     public function __construct()
     {
         Config::$serverKey = config('midtrans.server_key');
@@ -34,16 +40,11 @@ class MidtransService
                 'email' => $order->email,
                 'phone' => $order->phone,
             ],
+            'custom_expiry' => [
+                'expiry_duration' => self::EXPIRY_HOURS,
+                'unit' => 'hour',
+            ],
         ];
-
-        // DEBUG SEMENTARA — hapus setelah masalah selesai
-        Log::info('Midtrans DEBUG', [
-            'server_key_masked' => substr(config('midtrans.server_key'), 0, 14) . '...' . substr(config('midtrans.server_key'), -4),
-            'server_key_length' => strlen(config('midtrans.server_key')),
-            'is_production' => config('midtrans.is_production'),
-            'config_server_key' => Config::$serverKey,
-            'config_is_production' => Config::$isProduction,
-        ]);
 
         $response = CoreApi::charge($params);
         $qrUrl = null;
@@ -58,6 +59,7 @@ class MidtransService
             'midtrans_transaction_id' => $response->transaction_id,
             'midtrans_payment_type' => 'qris',
             'qr_code_url' => $qrUrl,
+            'payment_expires_at' => now()->addHours(self::EXPIRY_HOURS),
         ]);
 
         return $order;
@@ -82,16 +84,11 @@ class MidtransService
                 'email' => $order->email,
                 'phone' => $order->phone,
             ],
+            'custom_expiry' => [
+                'expiry_duration' => self::EXPIRY_HOURS,
+                'unit' => 'hour',
+            ],
         ];
-
-        // DEBUG SEMENTARA — hapus setelah masalah selesai
-        Log::info('Midtrans DEBUG', [
-            'server_key_masked' => substr(config('midtrans.server_key'), 0, 14) . '...' . substr(config('midtrans.server_key'), -4),
-            'server_key_length' => strlen(config('midtrans.server_key')),
-            'is_production' => config('midtrans.is_production'),
-            'config_server_key' => Config::$serverKey,
-            'config_is_production' => Config::$isProduction,
-        ]);
 
         $response = CoreApi::charge($params);
         $vaNumber = $response->va_numbers[0]->va_number ?? null;
@@ -101,6 +98,7 @@ class MidtransService
             'midtrans_payment_type' => 'bank_transfer',
             'va_bank' => $bank,
             'va_number' => $vaNumber,
+            'payment_expires_at' => now()->addHours(self::EXPIRY_HOURS),
         ]);
 
         return $order;

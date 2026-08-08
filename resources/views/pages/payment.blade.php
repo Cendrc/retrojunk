@@ -26,6 +26,11 @@
                 <h3>IDR {{ number_format($order->total, 0, ',', '.') }}</h3>
             </div>
             <p class="payment-help">Gunakan aplikasi GoPay, OVO, Dana, ShopeePay, atau e-wallet/m-banking yang mendukung QRIS.</p>
+            @if($order->payment_expires_at)
+            <p class="payment-expiry">
+                ⏰ Bayar sebelum <strong><span data-local-time="{{ $order->payment_expires_at->toIso8601String() }}">{{ $order->payment_expires_at->format('d M Y, H:i') }}</span></strong> (maksimal 24 jam sejak dibuat) — pesanan otomatis dibatalkan jika belum dibayar setelah batas waktu ini.
+            </p>
+            @endif
         </div>
         @endif
 
@@ -61,6 +66,11 @@
                 <h3>IDR {{ number_format($order->total, 0, ',', '.') }}</h3>
             </div>
             <p class="payment-help">Transfer sesuai nominal di atas melalui ATM, m-banking, atau internet banking {{ strtoupper($order->va_bank) }}. Status pembayaran akan diperbarui otomatis begitu pembayaran diterima.</p>
+            @if($order->payment_expires_at)
+            <p class="payment-expiry">
+                ⏰ Bayar sebelum <strong><span data-local-time="{{ $order->payment_expires_at->toIso8601String() }}">{{ $order->payment_expires_at->format('d M Y, H:i') }}</span></strong> (maksimal 24 jam sejak VA dibuat) — pesanan otomatis dibatalkan jika belum dibayar setelah batas waktu ini.
+            </p>
+            @endif
         </div>
         @endif
 

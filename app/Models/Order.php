@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -16,7 +17,7 @@ class Order extends Model
         'order_status', 'payment_status',
         'notes', 'confirmed_at', 'shipped_at', 'delivered_at',
         'midtrans_transaction_id', 'midtrans_payment_type', 'va_bank', 'va_number',
-        'qr_code_url', 'midtrans_paid_at',
+        'qr_code_url', 'midtrans_paid_at', 'payment_expires_at',
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class Order extends Model
         'shipped_at'    => 'datetime',
         'delivered_at'  => 'datetime',
         'midtrans_paid_at' => 'datetime',
+        'payment_expires_at' => 'datetime',
     ];
 
     /**
@@ -39,6 +41,24 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Batalkan order & kembalikan stok produk yang sudah dikurangi saat
+     * checkout. Dipakai baik untuk pembatalan manual oleh pelanggan
+     * maupun pembatalan otomatis oleh sistem (order kedaluwarsa).
+     */
+    public function cancelAndRestoreStock(): void
+    {
+        DB::transaction(function () {
+            foreach ($this->items as $item) {
+                if ($item->product_id) {
+                    Product::where('id', $item->product_id)->increment('stock', $item->quantity);
+                }
+            }
+
+            $this->update(['order_status' => 'cancelled']);
+        });
     }
 
     /**
