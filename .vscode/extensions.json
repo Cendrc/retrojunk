@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "bmewburn.vscode-intelephense-client",
+        "onecentlin.laravel-blade",
+        "onecentlin.laravel5-snippets",
+        "ryannaddy.laravel-artisan",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "mikestead.dotenv",
+        "editorconfig.editorconfig",
+        "eamodio.gitlens"
+    ]
+}
