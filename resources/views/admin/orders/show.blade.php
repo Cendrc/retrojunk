@@ -141,14 +141,14 @@
                 <h2>Update Status</h2>
             </div>
             <div class="admin-panel__body">
-                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
+                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" id="orderUpdateForm">
                     @csrf
                     @method('PUT')
 
                     {{-- Order Status --}}
                     <div class="admin-form-group">
                         <label>Status Pesanan</label>
-                        <select name="order_status" class="admin-input" required>
+                        <select name="order_status" class="admin-input" id="orderStatusSelect" required>
                             <option value="pending" @selected($order->order_status === 'pending')>Pending</option>
                             <option value="confirmed" @selected($order->order_status === 'confirmed')>Confirmed</option>
                             <option value="shipped" @selected($order->order_status === 'shipped')>Shipped</option>
@@ -169,8 +169,8 @@
                     </div>
 
                     <div class="admin-form-group">
-                        <label>Kurir Pengiriman</label>
-                        <select name="courier" class="admin-input">
+                        <label id="courierLabel">Kurir Pengiriman</label>
+                        <select name="courier" class="admin-input" id="courierSelect">
                             <option value="">- Pilih Kurir -</option>
                             <option value="jne" @selected($order->courier === 'jne')>JNE</option>
                             <option value="jnt" @selected($order->courier === 'jnt')>J&T Express</option>
@@ -183,9 +183,12 @@
                     </div>
 
                     <div class="admin-form-group">
-                        <label>Nomor Resi</label>
-                        <input type="text" name="tracking_number" class="admin-input" 
+                        <label id="trackingNumberLabel">Nomor Resi</label>
+                        <input type="text" name="tracking_number" class="admin-input" id="trackingNumberInput"
                                value="{{ $order->tracking_number }}" placeholder="Contoh: JNE123456789">
+                        <p class="admin-form-hint" id="trackingNumberHint" style="display:none;">
+                            Wajib diisi saat status pesanan "Shipped".
+                        </p>
                     </div>
 
                     <div class="admin-form-group">
@@ -211,5 +214,35 @@
         </div>
     </div>
 </div>
+
+<script>
+// Nomor resi (dan kurir) wajib diisi begitu status pesanan diubah ke
+// "Shipped" — validasi ini juga sudah ditegakkan di server
+// (Admin\OrderController@update), ini cuma supaya admin langsung tahu
+// tanpa perlu submit dulu.
+(function () {
+    const statusSelect = document.getElementById('orderStatusSelect');
+    const courierSelect = document.getElementById('courierSelect');
+    const courierLabel = document.getElementById('courierLabel');
+    const trackingInput = document.getElementById('trackingNumberInput');
+    const trackingLabel = document.getElementById('trackingNumberLabel');
+    const trackingHint = document.getElementById('trackingNumberHint');
+
+    function syncRequiredState() {
+        const isShipped = statusSelect.value === 'shipped';
+
+        courierSelect.required = isShipped;
+        trackingInput.required = isShipped;
+        trackingHint.style.display = isShipped ? 'block' : 'none';
+
+        const suffix = isShipped ? ' *' : '';
+        courierLabel.textContent = 'Kurir Pengiriman' + suffix;
+        trackingLabel.textContent = 'Nomor Resi' + suffix;
+    }
+
+    statusSelect?.addEventListener('change', syncRequiredState);
+    syncRequiredState();
+})();
+</script>
 
 @endsection

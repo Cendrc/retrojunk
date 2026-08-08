@@ -47,9 +47,12 @@ class OrderController extends Controller
         $request->validate([
             'order_status'    => 'required|in:pending,confirmed,shipped,delivered,cancelled',
             'payment_status'  => 'required|in:unpaid,awaiting_verification,paid,rejected',
-            'courier'         => 'nullable|string',
-            'tracking_number' => 'nullable|string',
+            'courier'         => 'nullable|string|required_if:order_status,shipped',
+            'tracking_number' => 'nullable|string|required_if:order_status,shipped',
             'notes'           => 'nullable|string',
+        ], [
+            'courier.required_if' => 'Kurir wajib diisi saat status pesanan diubah menjadi "Shipped".',
+            'tracking_number.required_if' => 'Nomor resi wajib diisi saat status pesanan diubah menjadi "Shipped".',
         ]);
 
         $order = Order::with('items.product')->findOrFail($id);

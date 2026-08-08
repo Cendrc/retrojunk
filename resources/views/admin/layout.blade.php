@@ -122,6 +122,16 @@
         <div class="admin-alert admin-alert--error">{{ session('error') }}</div>
         @endif
 
+        @if($errors->any())
+        <div class="admin-alert admin-alert--error">
+            <ul style="margin: 0; padding-left: 1.1rem;">
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         {{-- Content --}}
         <div class="admin-content">
             @yield('content')
