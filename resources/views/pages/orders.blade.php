@@ -66,6 +66,10 @@
                     <a href="{{ route('checkout.payment', $order->id) }}" class="btn-pay-now">
                         Bayar Sekarang →
                     </a>
+                    @elseif($order->payment_status === 'awaiting_verification' && $order->order_status !== 'cancelled' && in_array($order->payment_method, ['bank_transfer', 'qris']))
+                    <a href="{{ route('checkout.payment', $order->id) }}" class="btn-pay-now">
+                        Upload Ulang Bukti →
+                    </a>
                     @endif
 
                     @if($order->tracking_code)

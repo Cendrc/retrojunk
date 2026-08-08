@@ -95,11 +95,20 @@
             <h2>Upload Bukti Pembayaran</h2>
             <p>Setelah transfer, upload bukti pembayaran untuk konfirmasi oleh admin.</p>
 
+            @if($order->payment_proof)
+            <div class="proof-existing">
+                <p class="proof-existing__label">Bukti yang sudah diupload sebelumnya:</p>
+                <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti pembayaran sebelumnya">
+                <p class="proof-existing__hint">Salah upload? Pilih file lain di bawah untuk menggantinya.</p>
+            </div>
+            @endif
+
             <form action="{{ route('checkout.upload', $order->id) }}" method="POST" enctype="multipart/form-data" class="upload-form">
                 @csrf
                 <label class="upload-zone">
                     <input type="file" name="payment_proof" accept="image/*" required id="proofInput">
                     <div class="upload-zone__inner">
+                        <img id="proofPreview" class="upload-zone__preview" style="display:none;" alt="Preview bukti pembayaran">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -112,7 +121,7 @@
                 </label>
                 @error('payment_proof')<span class="form-error">{{ $message }}</span>@enderror
 
-                <button type="submit" class="btn-payment">Konfirmasi Pembayaran</button>
+                <button type="submit" class="btn-payment">{{ $order->payment_proof ? 'Ganti Bukti Pembayaran' : 'Konfirmasi Pembayaran' }}</button>
             </form>
         </div>
         @endif
@@ -123,11 +132,20 @@
             <h2>Upload Bukti Pembayaran (Opsional)</h2>
             <p>Status pembayaran akan terverifikasi otomatis. Upload bukti ini hanya sebagai cadangan apabila verifikasi otomatis mengalami kendala.</p>
 
+            @if($order->payment_proof)
+            <div class="proof-existing">
+                <p class="proof-existing__label">Bukti yang sudah diupload sebelumnya:</p>
+                <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti pembayaran sebelumnya">
+                <p class="proof-existing__hint">Salah upload? Pilih file lain di bawah untuk menggantinya.</p>
+            </div>
+            @endif
+
             <form action="{{ route('checkout.upload', $order->id) }}" method="POST" enctype="multipart/form-data" class="upload-form">
                 @csrf
                 <label class="upload-zone">
                     <input type="file" name="payment_proof" accept="image/*" id="proofInput2">
                     <div class="upload-zone__inner">
+                        <img id="proofPreview2" class="upload-zone__preview" style="display:none;" alt="Preview bukti pembayaran">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -140,7 +158,7 @@
                 </label>
                 @error('payment_proof')<span class="form-error">{{ $message }}</span>@enderror
 
-                <button type="submit" class="btn-payment">Upload Bukti</button>
+                <button type="submit" class="btn-payment">{{ $order->payment_proof ? 'Ganti Bukti Pembayaran' : 'Upload Bukti' }}</button>
             </form>
         </div>
 
@@ -179,15 +197,24 @@ const rjPaymentPoll = setInterval(() => {
 @endif
 
 <script>
-// Show selected file name
+// Show selected file name + preview gambar sebelum benar-benar diupload,
+// supaya pembeli bisa cek dulu apakah bukti yang dipilih sudah benar.
 ['proofInput', 'proofInput2'].forEach((inputId, i) => {
     const input = document.getElementById(inputId);
-    const fileNameId = i === 0 ? 'fileName' : 'fileName2';
+    const suffix = i === 0 ? '' : '2';
+    const fileName = document.getElementById('fileName' + suffix);
+    const preview = document.getElementById('proofPreview' + suffix);
+
     input?.addEventListener('change', function () {
-        const fileName = document.getElementById(fileNameId);
-        if (this.files[0]) {
-            fileName.textContent = '✓ ' + this.files[0].name;
-            fileName.style.color = '#5c6b3a';
+        const file = this.files[0];
+        if (!file) return;
+
+        fileName.textContent = '✓ ' + file.name;
+        fileName.style.color = '#5c6b3a';
+
+        if (preview) {
+            preview.src = URL.createObjectURL(file);
+            this.closest('.upload-zone')?.classList.add('has-file');
         }
     });
 });

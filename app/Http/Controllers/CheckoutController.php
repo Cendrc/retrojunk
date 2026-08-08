@@ -9,6 +9,7 @@ use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CheckoutController extends Controller
 {
@@ -254,7 +255,20 @@ class CheckoutController extends Controller
             'payment_proof' => 'required|image|max:2048',
         ]);
 
-        $order = Order::with('items.product')->findOrFail($id);
+        $order = Order::with('items.product')
+            ->where('id', $id)
+            ->where(function ($q) {
+                $q->where('email', auth()->user()->email)
+                  ->orWhere('user_id', auth()->id());
+            })
+            ->firstOrFail();
+
+        // Hapus bukti lama kalau ini upload ulang (mengganti bukti yang salah),
+        // supaya file lama tidak menumpuk sebagai sampah di storage.
+        if ($order->payment_proof) {
+            Storage::disk('public')->delete($order->payment_proof);
+        }
+
         $path = $request->file('payment_proof')->store('payment_proofs', 'public');
 
         $order->update([
