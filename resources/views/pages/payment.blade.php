@@ -196,10 +196,33 @@ const rjPaymentPoll = setInterval(() => {
 document.querySelectorAll('.bank-item__copy').forEach(btn => {
     btn.addEventListener('click', function () {
         const text = this.dataset.copy;
-        navigator.clipboard.writeText(text).then(() => {
-            this.textContent = 'Tersalin!';
+        const showResult = (ok) => {
+            this.textContent = ok ? 'Tersalin!' : 'Gagal, salin manual';
             setTimeout(() => this.textContent = 'Salin', 2000);
-        });
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => showResult(true)).catch(() => showResult(false));
+        } else {
+            // navigator.clipboard butuh secure context (HTTPS/localhost) — kalau diakses
+            // lewat http://retrojunk.test biasa, API-nya tidak ada sama sekali sehingga
+            // tombol Salin diam saja. Fallback ke cara lama lewat textarea + execCommand.
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            let ok = false;
+            try {
+                ok = document.execCommand('copy');
+            } catch (e) {
+                ok = false;
+            }
+            document.body.removeChild(textarea);
+            showResult(ok);
+        }
     });
 });
 </script>

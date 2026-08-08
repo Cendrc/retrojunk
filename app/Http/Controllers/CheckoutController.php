@@ -211,7 +211,13 @@ class CheckoutController extends Controller
 
     public function payment($id, MidtransService $midtrans)
     {
-        $order = Order::with('items.product')->findOrFail($id);
+        $order = Order::with('items.product')
+            ->where('id', $id)
+            ->where(function ($q) {
+                $q->where('email', auth()->user()->email)
+                  ->orWhere('user_id', auth()->id());
+            })
+            ->firstOrFail();
 
         if ($order->payment_method === 'bank_transfer' && !$order->midtrans_transaction_id) {
             try {
@@ -227,7 +233,13 @@ class CheckoutController extends Controller
 
     public function checkStatus($id)
     {
-        $order = Order::findOrFail($id);
+        $order = Order::where('id', $id)
+            ->where(function ($q) {
+                $q->where('email', auth()->user()->email)
+                  ->orWhere('user_id', auth()->id());
+            })
+            ->firstOrFail();
+
         return response()->json(['payment_status' => $order->payment_status]);
     }
 

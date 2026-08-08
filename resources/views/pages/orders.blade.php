@@ -60,6 +60,12 @@
                 </div>
 
                 <div class="order-card__action">
+                    @if($order->payment_status === 'unpaid' && in_array($order->payment_method, ['bank_transfer', 'qris']))
+                    <a href="{{ route('checkout.payment', $order->id) }}" class="btn-pay-now">
+                        Bayar Sekarang →
+                    </a>
+                    @endif
+
                     @if($order->tracking_code)
                     <a href="{{ route('tracking.show', $order->tracking_code) }}" class="btn-track">
                         Lacak Pesanan →
