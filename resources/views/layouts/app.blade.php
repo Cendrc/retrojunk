@@ -157,16 +157,11 @@
             </div>
             <div>
                 <h4>Informasi</h4>
-                <a href="#">Tentang Kami</a>
-                <a href="#">Cara Pemesanan</a>
-                <a href="#">Kebijakan Pengembalian</a>
-                <a href="#">Kontak</a>
+                <a href="{{ route('about') }}">Tentang Kami</a>
             </div>
             <div>
                 <h4>Ikuti Kami</h4>
-                <a href="#">Instagram</a>
-                <a href="#">TikTok</a>
-                <a href="#">WhatsApp</a>
+                <a href="https://www.instagram.com/retro.junkk" target="_blank" rel="noopener">Instagram</a>
             </div>
         </div>
     </div>

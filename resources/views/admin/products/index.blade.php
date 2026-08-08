@@ -28,18 +28,27 @@
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th>Aksi</th>
                     <th>Gambar</th>
                     <th>Nama</th>
                     <th>Kategori</th>
                     <th>Harga</th>
                     <th>Stok</th>
                     <th>Status</th>
-                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($products as $product)
                 <tr>
+                    <td>
+                        <a href="{{ route('admin.products.edit', $product->id) }}" class="admin-btn admin-btn--small">Edit</a>
+                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+                              style="display: inline;" onsubmit="return confirm('Yakin mau hapus produk ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="admin-btn admin-btn--small admin-btn--danger">Hapus</button>
+                        </form>
+                    </td>
                     <td>
                         <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
                              onerror="this.src='{{ asset('images/placeholder.jpg') }}'"
@@ -58,15 +67,6 @@
                         @else
                         <span class="admin-badge admin-badge--pending">Regular</span>
                         @endif
-                    </td>
-                    <td>
-                        <a href="{{ route('admin.products.edit', $product->id) }}" class="admin-btn admin-btn--small">Edit</a>
-                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" 
-                              style="display: inline;" onsubmit="return confirm('Yakin mau hapus produk ini?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="admin-btn admin-btn--small admin-btn--danger">Hapus</button>
-                        </form>
                     </td>
                 </tr>
                 @endforeach

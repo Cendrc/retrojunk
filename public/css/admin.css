@@ -200,8 +200,10 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid #e5e7eb;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .admin-panel__header h2 {
@@ -441,6 +443,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 .customer-avatar {
     width: 36px;
     height: 36px;
+    flex-shrink: 0;
     border-radius: 50%;
     background: #5c6b3a;
     color: white;
@@ -452,7 +455,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 }
 
 .customer-avatar--large { width: 64px; height: 64px; font-size: 1.5rem; }
-.customer-detail-header { display: flex; align-items: center; gap: 1.25rem; }
+.customer-detail-header { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
 .customer-detail-header h2 { font-family: 'Playfair Display', serif; color: #1f2937; }
 
 .admin-stat-row {
@@ -569,14 +572,21 @@ a.admin-stat-card:active {
     .admin-filters { flex-direction: column; }
     .admin-filters .admin-input { width: 100%; min-width: 0; }
 
-    .admin-panel__body { padding: 0; }
     .admin-panel__body:has(.admin-table) {
+        padding: 0;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
     .admin-table { min-width: 560px; }
 
     .admin-form-row { grid-template-columns: 1fr; }
+
+    .admin-order-item { flex-wrap: wrap; }
+    .customer-detail-header { text-align: left; }
+    .admin-table td:first-child, .admin-table th:first-child { position: sticky; left: 0; z-index: 1; }
+    .admin-table thead th:first-child { background: #f9fafb; }
+    .admin-table tbody td:first-child { background: #fff; }
+    .admin-table tbody tr:hover td:first-child { background: #f9fafb; }
 }
 
 /* ===================== FINAL FORCE OVERRIDE (DESKTOP ONLY) ===================== */

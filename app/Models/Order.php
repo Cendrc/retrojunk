@@ -15,12 +15,15 @@ class Order extends Model
         'payment_method', 'payment_proof', 'courier', 'shipping_service', 'tracking_number',
         'order_status', 'payment_status',
         'notes', 'confirmed_at', 'shipped_at', 'delivered_at',
+        'midtrans_transaction_id', 'midtrans_payment_type', 'va_bank', 'va_number',
+        'qr_code_url', 'midtrans_paid_at',
     ];
 
     protected $casts = [
         'confirmed_at'  => 'datetime',
         'shipped_at'    => 'datetime',
         'delivered_at'  => 'datetime',
+        'midtrans_paid_at' => 'datetime',
     ];
 
     /**

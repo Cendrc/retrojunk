@@ -1858,26 +1858,10 @@ main { padding-top: var(--nav-h); }
 }
 
 .qris-image {
-    width: 280px;
-    height: 280px;
-    margin: 0 auto 1rem;
+    display: block;
+    width: 100%;
+    height: auto;
     border-radius: 8px;
-    object-fit: contain;
-}
-
-.qris-info {
-    border-top: 1px dashed var(--cream-dark);
-    padding-top: 1rem;
-}
-
-.qris-merchant {
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-.qris-id {
-    font-size: 0.8rem;
-    color: var(--text-light);
 }
 
 /* Bank list */
@@ -2842,6 +2826,29 @@ input[type="number"]::-webkit-inner-spin-button {
     padding-top: 1rem;
     border-top: 1px solid var(--cream-dark);
     text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.btn-cancel-order {
+    display: inline-block;
+    background: transparent;
+    color: var(--red);
+    border: 1px solid var(--red);
+    padding: 0.7rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-cancel-order:hover {
+    background: var(--red);
+    color: white;
 }
 
 .btn-track {

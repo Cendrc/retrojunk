@@ -19,10 +19,7 @@
         <div class="payment-card">
             <h2>Scan QRIS untuk Bayar</h2>
             <div class="qris-box">
-                <img src="{{ asset('images/qris-code.png') }}" alt="QRIS Code" class="qris-image">
-                <div class="qris-info">
-                    <p class="qris-merchant">Retro Junk Preloved</p>
-                </div>
+                <img src="{{ asset('images/qris-code.jpeg') }}" alt="QRIS Code" class="qris-image">
             </div>
             <div class="payment-amount">
                 <p>Total yang harus dibayar:</p>
@@ -64,6 +61,8 @@
                 <h3>IDR {{ number_format($order->total, 0, ',', '.') }}</h3>
             </div>
             <p class="payment-help">Transfer sesuai nominal di atas melalui ATM, m-banking, atau internet banking {{ strtoupper($order->va_bank) }}. Status pembayaran akan diperbarui otomatis begitu pembayaran diterima.</p>
+        </div>
+        @endif
 
         {{-- COD --}}
         @if($order->payment_method === 'cod')

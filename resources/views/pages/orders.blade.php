@@ -9,6 +9,13 @@
             <p>{{ $orders->count() }} pesanan ditemukan</p>
         </div>
 
+        @if(session('success'))
+        <div class="alert-success" style="margin-bottom: 1.5rem;">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+        <div class="alert-error" style="margin-bottom: 1.5rem;">{{ session('error') }}</div>
+        @endif
+
         @if($orders->count() > 0)
         <div class="orders-list">
             @foreach($orders as $order)
@@ -57,6 +64,14 @@
                     <a href="{{ route('tracking.show', $order->tracking_code) }}" class="btn-track">
                         Lacak Pesanan →
                     </a>
+                    @endif
+
+                    @if($order->order_status === 'pending')
+                    <form action="{{ route('orders.cancel', $order->id) }}" method="POST"
+                          onsubmit="return confirm('Yakin mau membatalkan pesanan ini?');" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn-cancel-order">Batalkan Pesanan</button>
+                    </form>
                     @endif
                 </div>
             </div>

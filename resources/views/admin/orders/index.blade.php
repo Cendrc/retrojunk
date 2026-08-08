@@ -40,6 +40,7 @@
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th>Aksi</th>
                     <th>Kode</th>
                     <th>Customer</th>
                     <th>Total</th>
@@ -47,12 +48,14 @@
                     <th>Status Pesanan</th>
                     <th>Status Bayar</th>
                     <th>Tanggal</th>
-                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($orders as $order)
                 <tr>
+                    <td>
+                        <a href="{{ route('admin.orders.show', $order->id) }}" class="admin-btn admin-btn--small">Detail</a>
+                    </td>
                     <td><strong>{{ $order->tracking_code }}</strong></td>
                     <td>
                         <p>{{ $order->name }}</p>
@@ -71,9 +74,6 @@
                         </span>
                     </td>
                     <td>{{ $order->created_at->format('d M Y') }}</td>
-                    <td>
-                        <a href="{{ route('admin.orders.show', $order->id) }}" class="admin-btn admin-btn--small">Detail</a>
-                    </td>
                 </tr>
                 @endforeach
             </tbody>

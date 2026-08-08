@@ -13,18 +13,15 @@
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th>Aksi</th>
                     <th>Nama</th>
                     <th>Email</th>
                     <th>Terdaftar Sejak</th>
-                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($admins as $admin)
                 <tr>
-                    <td><strong>{{ $admin->name }}</strong></td>
-                    <td>{{ $admin->email }}</td>
-                    <td>{{ $admin->created_at->format('d M Y') }}</td>
                     <td>
                         @if($admin->id === auth()->id())
                         <span class="admin-badge admin-badge--confirmed">Akun Anda</span>
@@ -37,6 +34,9 @@
                         </form>
                         @endif
                     </td>
+                    <td><strong>{{ $admin->name }}</strong></td>
+                    <td>{{ $admin->email }}</td>
+                    <td>{{ $admin->created_at->format('d M Y') }}</td>
                 </tr>
                 @endforeach
             </tbody>

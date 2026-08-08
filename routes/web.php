@@ -19,6 +19,9 @@ use App\Http\Controllers\ShippingController;
 // Landing / Home
 Route::get('/', [ProductController::class, 'index'])->name('home');
 
+// Tentang Kami
+Route::view('/tentang-kami', 'pages.about')->name('about');
+
 // Category pages
 Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
 Route::get('/category/{category}', [ProductController::class, 'category'])->name('category');
@@ -42,10 +45,14 @@ Route::middleware('auth')->group(function () {
     Route::patch('/addresses/{id}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
 });
 
+// Midtrans webhook — dipanggil server-to-server oleh Midtrans, TIDAK punya sesi
+// login Laravel, jadi harus di luar middleware 'auth' (CSRF exception sudah
+// diatur terpisah di bootstrap/app.php).
+Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle'])->name('midtrans.notification');
+
 // Checkout
 // Checkout - hanya untuk user yang sudah login
 Route::middleware('auth')->group(function () {
-    Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle'])->name('midtrans.notification');
     Route::get('/orders/{id}/status', [CheckoutController::class, 'checkStatus'])->name('order.status');
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
@@ -80,6 +87,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 Route::middleware('auth')->group(function () {
     Route::get('/account', [AuthController::class, 'account'])->name('account');
     Route::get('/orders', [AuthController::class, 'orders'])->name('orders');
+    Route::post('/orders/{id}/cancel', [AuthController::class, 'cancelOrder'])->name('orders.cancel');
 });
 
 // ===================== ADMIN ROUTES =====================

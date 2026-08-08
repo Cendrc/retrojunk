@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -80,6 +82,33 @@ class AuthController extends Controller
             ->latest()
             ->get();
         return view('pages.orders', compact('orders'));
+    }
+
+    public function cancelOrder($id)
+    {
+        $order = Order::with('items')
+            ->where('id', $id)
+            ->where(function ($q) {
+                $q->where('email', auth()->user()->email)
+                  ->orWhere('user_id', auth()->id());
+            })
+            ->firstOrFail();
+
+        if ($order->order_status !== 'pending') {
+            return back()->with('error', 'Pesanan ini sudah diproses dan tidak bisa dibatalkan sendiri. Silakan hubungi kami.');
+        }
+
+        DB::transaction(function () use ($order) {
+            foreach ($order->items as $item) {
+                if ($item->product_id) {
+                    Product::where('id', $item->product_id)->increment('stock', $item->quantity);
+                }
+            }
+
+            $order->update(['order_status' => 'cancelled']);
+        });
+
+        return back()->with('success', 'Pesanan berhasil dibatalkan.');
     }
 
     public function showForgotPassword()

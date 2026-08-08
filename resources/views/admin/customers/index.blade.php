@@ -15,17 +15,20 @@
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th>Aksi</th>
                     <th>Nama</th>
                     <th>Email</th>
                     <th>Total Pesanan</th>
                     <th>Total Belanja</th>
                     <th>Daftar Sejak</th>
-                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($customers as $customer)
                 <tr>
+                    <td>
+                        <a href="{{ route('admin.customers.show', $customer->id) }}" class="admin-btn admin-btn--small">Detail</a>
+                    </td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <div class="customer-avatar">{{ strtoupper(substr($customer->name, 0, 1)) }}</div>
@@ -36,9 +39,6 @@
                     <td>{{ $customer->order_count }} pesanan</td>
                     <td>IDR {{ number_format($customer->total_spent, 0, ',', '.') }}</td>
                     <td>{{ $customer->created_at->format('d M Y') }}</td>
-                    <td>
-                        <a href="{{ route('admin.customers.show', $customer->id) }}" class="admin-btn admin-btn--small">Detail</a>
-                    </td>
                 </tr>
                 @endforeach
             </tbody>

@@ -76,15 +76,6 @@
                 </div>
             </div>
 
-            <div class="admin-form-group">
-                <label>Path Gambar</label>
-                <input type="text" name="image" class="admin-input" value="{{ old('image', $product->image) }}">
-                @if($product->image)
-                <img src="{{ asset($product->image) }}" alt="Preview" style="margin-top: 0.5rem; max-width: 150px; border-radius: 8px;"
-                     onerror="this.style.display='none'">
-                @endif
-            </div>
-
             <h3 style="margin-top: 2rem;">Detail Ukuran</h3>
 
             <div class="admin-form-row">
