@@ -23,7 +23,7 @@
                 <div class="order-card__header">
                     <div>
                         <p class="order-card__id">{{ $order->tracking_code ?? 'Order #' . $order->id }}</p>
-                        <p class="order-card__date">{{ $order->created_at->format('d M Y, H:i') }}</p>
+                        <p class="order-card__date" data-local-time="{{ $order->created_at->toIso8601String() }}">{{ $order->created_at->format('d M Y, H:i') }}</p>
                     </div>
                     <div class="order-card__status-group">
                         <span class="order-card__status order-card__status--{{ $order->order_status }}">

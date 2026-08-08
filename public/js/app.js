@@ -121,6 +121,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ---- Tanggal/jam mengikuti zona waktu perangkat pengunjung ----
+    // Server merender waktu WIB sebagai isi awal (fallback kalau JS mati),
+    // lalu di sini ditimpa dengan jam lokal browser pengunjung (WITA/WIT/dll)
+    // hasil parsing data-local-time (ISO 8601 dengan offset dari server).
+    const monthsId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    document.querySelectorAll('[data-local-time]').forEach(el => {
+        const date = new Date(el.dataset.localTime);
+        if (isNaN(date.getTime())) return;
+
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = monthsId[date.getMonth()];
+        const yyyy = date.getFullYear();
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+
+        el.textContent = el.dataset.dateOnly === '1'
+            ? `${dd} ${mm} ${yyyy}`
+            : `${dd} ${mm} ${yyyy}, ${hh}:${min}`;
+    });
+
     // ---- Product Card Reveal (pop up saat scroll ke layar) ----
     const revealCards = document.querySelectorAll('.product-card');
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

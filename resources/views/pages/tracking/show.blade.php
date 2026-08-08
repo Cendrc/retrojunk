@@ -65,7 +65,7 @@
                         <p class="timeline-step__label">{{ $step['label'] }}</p>
                         <p class="timeline-step__desc">{{ $step['description'] }}</p>
                         @if($step['date'])
-                        <p class="timeline-step__date">{{ \Carbon\Carbon::parse($step['date'])->translatedFormat('d M Y, H:i') }} WIB</p>
+                        <p class="timeline-step__date" data-local-time="{{ \Carbon\Carbon::parse($step['date'])->toIso8601String() }}">{{ \Carbon\Carbon::parse($step['date'])->translatedFormat('d M Y, H:i') }}</p>
                         @endif
                     </div>
                 </div>
