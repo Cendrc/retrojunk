@@ -141,7 +141,7 @@
                 <h2>Update Status</h2>
             </div>
             <div class="admin-panel__body">
-                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" id="orderUpdateForm">
+                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" id="orderUpdateForm" novalidate>
                     @csrf
                     @method('PUT')
 
@@ -215,18 +215,36 @@
     </div>
 </div>
 
+{{-- Popup peringatan validasi (menggantikan tooltip bawaan browser
+     "Please fill out this field" yang tampilannya tidak konsisten &
+     kurang jelas di layar mobile) --}}
+<div class="admin-modal-overlay" id="validationModalOverlay">
+    <div class="admin-modal">
+        <h3 class="admin-modal__title">Data Belum Lengkap</h3>
+        <p class="admin-modal__body" id="validationModalMessage"></p>
+        <button type="button" class="admin-btn admin-btn--primary admin-btn--full" id="validationModalClose">
+            Mengerti
+        </button>
+    </div>
+</div>
+
 <script>
 // Nomor resi (dan kurir) wajib diisi begitu status pesanan diubah ke
 // "Shipped" — validasi ini juga sudah ditegakkan di server
-// (Admin\OrderController@update), ini cuma supaya admin langsung tahu
-// tanpa perlu submit dulu.
+// (Admin\OrderController@update). Form pakai novalidate supaya tooltip
+// bawaan browser ("Please fill out this field") tidak muncul, diganti
+// popup sendiri yang lebih jelas dan konsisten tampilannya di mobile.
 (function () {
+    const form = document.getElementById('orderUpdateForm');
     const statusSelect = document.getElementById('orderStatusSelect');
     const courierSelect = document.getElementById('courierSelect');
     const courierLabel = document.getElementById('courierLabel');
     const trackingInput = document.getElementById('trackingNumberInput');
     const trackingLabel = document.getElementById('trackingNumberLabel');
     const trackingHint = document.getElementById('trackingNumberHint');
+    const modalOverlay = document.getElementById('validationModalOverlay');
+    const modalMessage = document.getElementById('validationModalMessage');
+    const modalClose = document.getElementById('validationModalClose');
 
     function syncRequiredState() {
         const isShipped = statusSelect.value === 'shipped';
@@ -240,8 +258,42 @@
         trackingLabel.textContent = 'Nomor Resi' + suffix;
     }
 
+    function showModal(message) {
+        modalMessage.textContent = message;
+        modalOverlay.classList.add('active');
+    }
+
+    function hideModal() {
+        modalOverlay.classList.remove('active');
+    }
+
     statusSelect?.addEventListener('change', syncRequiredState);
     syncRequiredState();
+
+    form?.addEventListener('submit', function (e) {
+        if (statusSelect.value !== 'shipped') return;
+
+        const missing = [];
+        if (!courierSelect.value) missing.push('Kurir Pengiriman');
+        if (!trackingInput.value.trim()) missing.push('Nomor Resi');
+
+        if (missing.length > 0) {
+            e.preventDefault();
+            showModal(
+                'Status pesanan "Shipped" mengharuskan ' + missing.join(' dan ') +
+                ' diisi terlebih dahulu sebelum bisa disimpan.'
+            );
+            (missing[0] === 'Kurir Pengiriman' ? courierSelect : trackingInput).focus();
+        }
+    });
+
+    modalClose?.addEventListener('click', hideModal);
+    modalOverlay?.addEventListener('click', function (e) {
+        if (e.target === modalOverlay) hideModal();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') hideModal();
+    });
 })();
 </script>
 
