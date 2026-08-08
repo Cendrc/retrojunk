@@ -215,9 +215,11 @@
         <div class="checkout-summary">
             @foreach($cart as $item)
             <div class="checkout-item">
-                <div class="checkout-item__img">
-                    <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
-                         onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
+                <div class="checkout-item__img-wrap">
+                    <div class="checkout-item__img">
+                        <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
+                             onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
+                    </div>
                     <span class="checkout-item__qty">1</span>
                 </div>
                 <div class="checkout-item__info">
