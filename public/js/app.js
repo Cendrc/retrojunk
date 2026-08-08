@@ -121,6 +121,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ---- Product Card Reveal (pop up saat scroll ke layar) ----
+    const revealCards = document.querySelectorAll('.product-card');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (revealCards.length && 'IntersectionObserver' in window && !prefersReducedMotion) {
+        revealCards.forEach((card, i) => {
+            card.classList.add('reveal-init');
+            card.style.transitionDelay = `${Math.min(i, 5) * 90}ms`;
+        });
+
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+        revealCards.forEach(card => revealObserver.observe(card));
+    }
+
 });
 
 // ---- Load Cart Items (Real-time fetch) ----
