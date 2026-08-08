@@ -21,7 +21,15 @@ class ProductController extends Controller
             $query->where('name', 'like', "%{$request->search}%");
         }
 
-        $products = $query->latest()->paginate(15)->withQueryString();
+        // Urutkan berdasarkan kode produk (mis. CG-13, CG-14, ..., OW-01, OW-02)
+        // supaya tampilannya konsisten di semua device, bukan berdasarkan
+        // urutan insert/created_at yang bisa beda-beda tiap kali seeding.
+        $products = $query
+            ->orderByRaw('code IS NULL')
+            ->orderByRaw('SUBSTRING_INDEX(code, "-", 1) ASC')
+            ->orderByRaw('CAST(SUBSTRING_INDEX(code, "-", -1) AS UNSIGNED) ASC')
+            ->orderBy('id')
+            ->paginate(15)->withQueryString();
 
         return view('admin.products.index', compact('products'));
     }
