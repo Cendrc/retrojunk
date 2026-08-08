@@ -105,20 +105,17 @@
             <h2>Upload Bukti Pembayaran</h2>
             <p>Setelah transfer, upload bukti pembayaran untuk konfirmasi oleh admin.</p>
 
-            @if($order->payment_proof)
-            <div class="proof-existing">
-                <p class="proof-existing__label">Bukti yang sudah diupload sebelumnya:</p>
-                <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti pembayaran sebelumnya">
-                <p class="proof-existing__hint">Salah upload? Pilih file lain di bawah untuk menggantinya.</p>
+            <div class="proof-existing" id="proofBox" style="{{ $order->payment_proof ? '' : 'display:none;' }}">
+                <p class="proof-existing__label" id="proofBoxLabel">Bukti yang sudah diupload sebelumnya:</p>
+                <img id="proofBoxImg" src="{{ $order->payment_proof ? asset('storage/' . $order->payment_proof) : '' }}" alt="Preview bukti pembayaran">
+                <p class="proof-existing__hint" id="proofBoxHint">Salah upload? Pilih file lain di bawah untuk menggantinya.</p>
             </div>
-            @endif
 
             <form action="{{ route('checkout.upload', $order->id) }}" method="POST" enctype="multipart/form-data" class="upload-form">
                 @csrf
                 <label class="upload-zone">
                     <input type="file" name="payment_proof" accept="image/*" required id="proofInput">
                     <div class="upload-zone__inner">
-                        <img id="proofPreview" class="upload-zone__preview" style="display:none;" alt="Preview bukti pembayaran">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -142,20 +139,17 @@
             <h2>Upload Bukti Pembayaran (Opsional)</h2>
             <p>Status pembayaran akan terverifikasi otomatis. Upload bukti ini hanya sebagai cadangan apabila verifikasi otomatis mengalami kendala.</p>
 
-            @if($order->payment_proof)
-            <div class="proof-existing">
-                <p class="proof-existing__label">Bukti yang sudah diupload sebelumnya:</p>
-                <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti pembayaran sebelumnya">
-                <p class="proof-existing__hint">Salah upload? Pilih file lain di bawah untuk menggantinya.</p>
+            <div class="proof-existing" id="proofBox2" style="{{ $order->payment_proof ? '' : 'display:none;' }}">
+                <p class="proof-existing__label" id="proofBoxLabel2">Bukti yang sudah diupload sebelumnya:</p>
+                <img id="proofBoxImg2" src="{{ $order->payment_proof ? asset('storage/' . $order->payment_proof) : '' }}" alt="Preview bukti pembayaran">
+                <p class="proof-existing__hint" id="proofBoxHint2">Salah upload? Pilih file lain di bawah untuk menggantinya.</p>
             </div>
-            @endif
 
             <form action="{{ route('checkout.upload', $order->id) }}" method="POST" enctype="multipart/form-data" class="upload-form">
                 @csrf
                 <label class="upload-zone">
                     <input type="file" name="payment_proof" accept="image/*" id="proofInput2">
                     <div class="upload-zone__inner">
-                        <img id="proofPreview2" class="upload-zone__preview" style="display:none;" alt="Preview bukti pembayaran">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -207,13 +201,20 @@ const rjPaymentPoll = setInterval(() => {
 @endif
 
 <script>
-// Show selected file name + preview gambar sebelum benar-benar diupload,
-// supaya pembeli bisa cek dulu apakah bukti yang dipilih sudah benar.
+// Preview gambar bukti pembayaran sebelum benar-benar diupload. Preview
+// ini menggantikan tampilan gambar "bukti sebelumnya" secara sementara
+// (murni di browser, belum dikirim ke server) — kalau halaman ditutup
+// atau di-refresh tanpa menekan tombol submit, tidak ada yang berubah
+// di server, jadi saat dibuka lagi yang tampil kembali ke bukti asli
+// yang benar-benar sudah tersimpan sebelumnya.
 ['proofInput', 'proofInput2'].forEach((inputId, i) => {
     const input = document.getElementById(inputId);
     const suffix = i === 0 ? '' : '2';
     const fileName = document.getElementById('fileName' + suffix);
-    const preview = document.getElementById('proofPreview' + suffix);
+    const box = document.getElementById('proofBox' + suffix);
+    const boxImg = document.getElementById('proofBoxImg' + suffix);
+    const boxLabel = document.getElementById('proofBoxLabel' + suffix);
+    const boxHint = document.getElementById('proofBoxHint' + suffix);
 
     input?.addEventListener('change', function () {
         const file = this.files[0];
@@ -222,9 +223,11 @@ const rjPaymentPoll = setInterval(() => {
         fileName.textContent = '✓ ' + file.name;
         fileName.style.color = '#5c6b3a';
 
-        if (preview) {
-            preview.src = URL.createObjectURL(file);
-            this.closest('.upload-zone')?.classList.add('has-file');
+        if (box && boxImg) {
+            boxImg.src = URL.createObjectURL(file);
+            boxLabel.textContent = 'Preview bukti yang akan diupload:';
+            boxHint.textContent = 'Belum tersimpan — tekan tombol di bawah untuk mengonfirmasi.';
+            box.style.display = 'block';
         }
     });
 });
