@@ -1921,6 +1921,7 @@ main { padding-top: var(--nav-h); }
 
 .bank-item__info {
     flex: 1;
+    min-width: 0;
 }
 
 .bank-item__name {
@@ -1935,6 +1936,7 @@ main { padding-top: var(--nav-h); }
     font-weight: 600;
     color: var(--text-dark);
     margin-bottom: 2px;
+    overflow-wrap: anywhere;
 }
 
 .bank-item__owner {
@@ -1951,6 +1953,7 @@ main { padding-top: var(--nav-h); }
     font-size: 0.85rem;
     cursor: pointer;
     transition: background var(--transition);
+    flex-shrink: 0;
 }
 
 .bank-item__copy:hover {
