@@ -125,8 +125,11 @@
                 <h2>Bukti Pembayaran</h2>
             </div>
             <div class="admin-panel__body">
-                <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti Pembayaran" 
-                     style="max-width: 400px; border-radius: 8px; border: 1px solid #ddd;">
+                <a href="{{ asset('storage/' . $order->payment_proof) }}" target="_blank" rel="noopener">
+                    <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti Pembayaran"
+                         style="max-width: 400px; border-radius: 8px; border: 1px solid #ddd; cursor: zoom-in;">
+                </a>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #888;">Klik gambar untuk melihat ukuran penuh di tab baru.</p>
             </div>
         </div>
         @endif

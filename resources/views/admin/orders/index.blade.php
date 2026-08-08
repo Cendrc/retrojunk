@@ -62,7 +62,19 @@
                         <small>{{ $order->email }}</small>
                     </td>
                     <td>IDR {{ number_format($order->total, 0, ',', '.') }}</td>
-                    <td>{{ $order->payment_method_label }}</td>
+                    <td>
+                        {{ $order->payment_method_label }}
+                        @if($order->payment_proof)
+                        <a href="{{ asset('storage/' . $order->payment_proof) }}" target="_blank" rel="noopener"
+                           class="admin-proof-link" title="Lihat bukti pembayaran yang dikirim pembeli">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <path d="M21 15l-5-5L5 21"/>
+                            </svg>
+                        </a>
+                        @endif
+                    </td>
                     <td>
                         <span class="admin-badge admin-badge--{{ $order->order_status }}">
                             {{ $order->order_status_label }}
