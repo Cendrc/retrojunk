@@ -158,8 +158,13 @@ class CheckoutController extends Controller
             // TRANSACTION COMMIT: Bersihkan cart & redirect ke payment
             session()->forget('cart');
 
-            // Simpan alamat baru jika pengguna login, memilih isi manual, dan mencentang "simpan alamat"
-            if (auth()->check() && $request->boolean('save_address') && $request->input('address_choice') === 'new') {
+            // Simpan alamat baru jika pengguna login, memilih isi manual, dan mencentang "simpan alamat".
+            // address_choice bernilai null (bukan cuma "new") saat user BELUM punya alamat tersimpan
+            // sama sekali — radio group "address_choice" di form checkout cuma dirender kalau user
+            // sudah punya minimal 1 alamat tersimpan, jadi field itu tidak ikut ter-submit sama sekali
+            // untuk penyimpanan alamat pertama kali.
+            $addressChoice = $request->input('address_choice');
+            if (auth()->check() && $request->boolean('save_address') && ($addressChoice === null || $addressChoice === 'new')) {
                 $user = auth()->user();
                 if ($user->addresses()->count() < 10) {
                     $user->addresses()->create([
