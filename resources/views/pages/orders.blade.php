@@ -29,9 +29,11 @@
                         <span class="order-card__status order-card__status--{{ $order->order_status }}">
                             {{ $order->order_status_label }}
                         </span>
+                        @if($order->order_status !== 'cancelled')
                         <span class="order-card__status order-card__status-payment--{{ $order->payment_status }}">
                             {{ $order->payment_status_label }}
                         </span>
+                        @endif
                     </div>
                 </div>
 
@@ -60,7 +62,7 @@
                 </div>
 
                 <div class="order-card__action">
-                    @if($order->payment_status === 'unpaid' && in_array($order->payment_method, ['bank_transfer', 'qris']))
+                    @if($order->payment_status === 'unpaid' && $order->order_status !== 'cancelled' && in_array($order->payment_method, ['bank_transfer', 'qris']))
                     <a href="{{ route('checkout.payment', $order->id) }}" class="btn-pay-now">
                         Bayar Sekarang →
                     </a>

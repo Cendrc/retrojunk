@@ -154,6 +154,29 @@ class Order extends Model
      */
     public function getTrackingStepsAttribute()
     {
+        if ($this->order_status === 'cancelled') {
+            return [
+                [
+                    'key' => 'pending',
+                    'label' => 'Pesanan Dibuat',
+                    'description' => 'Pesanan kamu telah diterima',
+                    'icon' => 'package',
+                    'date' => $this->created_at,
+                    'completed' => true,
+                    'cancelled' => false,
+                ],
+                [
+                    'key' => 'cancelled',
+                    'label' => 'Pesanan Dibatalkan',
+                    'description' => 'Pesanan ini telah dibatalkan dan tidak diproses lebih lanjut',
+                    'icon' => 'cancel',
+                    'date' => $this->updated_at,
+                    'completed' => true,
+                    'cancelled' => true,
+                ],
+            ];
+        }
+
         $steps = [
             [
                 'key' => 'pending',

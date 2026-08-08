@@ -17,9 +17,11 @@
             <div class="tracking-status-badge tracking-status-badge--{{ $order->order_status }}">
                 {{ $order->order_status_label }}
             </div>
+            @if($order->order_status !== 'cancelled')
             <div class="tracking-status-badge tracking-status-badge-payment--{{ $order->payment_status }}">
                 {{ $order->payment_status_label }}
             </div>
+            @endif
         </div>
 
         {{-- Timeline --}}
@@ -27,13 +29,19 @@
             <h2>Timeline Pengiriman</h2>
             <div class="tracking-timeline">
                 @foreach($order->tracking_steps as $index => $step)
-                <div class="timeline-step {{ $step['completed'] ? 'completed' : '' }} {{ $loop->last ? 'last' : '' }}">
+                <div class="timeline-step {{ $step['completed'] ? 'completed' : '' }} {{ ($step['cancelled'] ?? false) ? 'cancelled' : '' }} {{ $loop->last ? 'last' : '' }}">
                     <div class="timeline-step__icon">
                         @if($step['icon'] === 'package')
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
                                 <line x1="3" y1="6" x2="21" y2="6"/>
                                 <path d="M16 10a4 4 0 01-8 0"/>
+                            </svg>
+                        @elseif($step['icon'] === 'cancel')
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
                             </svg>
                         @elseif($step['icon'] === 'check')
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
