@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Order;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -111,37 +113,45 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $status = Password::sendResetLink($request->only('email'));
 
-        if (!$user) {
-            return back()->withErrors(['email' => 'Email tidak terdaftar di sistem kami.'])->withInput();
+        if ($status === Password::RESET_LINK_SENT) {
+            return redirect()->route('password.forgot')->with('success', 'Link reset password sudah dikirim ke email kamu. Silakan cek inbox (atau folder spam).');
         }
 
-        return redirect()->route('password.reset', ['email' => $request->email]);
+        return back()->withErrors(['email' => 'Email tidak terdaftar di sistem kami.'])->withInput();
     }
 
-    public function showResetPassword($email)
+    public function showResetPassword(Request $request, $token)
     {
-        $user = User::where('email', $email)->first();
-
-        if (!$user) {
-            return redirect()->route('password.forgot')->withErrors(['email' => 'Email tidak valid.']);
-        }
-
-        return view('pages.auth.reset-password', compact('email'));
+        return view('pages.auth.reset-password', [
+            'token' => $token,
+            'email' => $request->query('email', ''),
+        ]);
     }
 
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email|exists:users,email',
+            'token'    => 'required',
+            'email'    => 'required|email',
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-        $user->password = $request->password;
-        $user->save();
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->password = $password;
+                $user->save();
 
-        return redirect()->route('login')->with('success', 'Password berhasil direset! Silakan login dengan password baru kamu.');
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('login')->with('success', 'Password berhasil direset! Silakan login dengan password baru kamu.');
+        }
+
+        return back()->withErrors(['email' => 'Link reset password tidak valid atau sudah kedaluwarsa. Silakan minta link baru.'])->withInput();
     }
 }

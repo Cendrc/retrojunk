@@ -80,7 +80,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Forgot Password
 Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.forgot');
 Route::post('/forgot-password', [AuthController::class, 'checkEmail'])->name('password.check');
-Route::get('/reset-password/{email}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
 // User Account

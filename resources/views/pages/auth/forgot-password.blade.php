@@ -10,6 +10,10 @@
         <h1>Lupa Password?</h1>
         <p class="auth-subtitle">Masukkan email yang terdaftar untuk reset password.</p>
 
+        @if(session('success'))
+        <div class="alert-success">{{ session('success') }}</div>
+        @endif
+
         @if($errors->any())
         <div class="alert-error">{{ $errors->first() }}</div>
         @endif
